@@ -28,6 +28,14 @@ class MyApp extends StatelessWidget {
         // the app on. For desktop platforms, the controls will be smaller and
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
       ),
       routes: {
         TermsAndConditions.id: (context) => TermsAndConditions(),

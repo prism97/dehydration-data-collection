@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class BaseFormField extends StatelessWidget {
   final String label;
-  final TextInputType keyboardType;
+  final Widget formField;
 
   const BaseFormField({
     Key key,
     @required this.label,
-    @required this.keyboardType,
+    @required this.formField,
   }) : super(key: key);
 
   @override
@@ -23,18 +23,7 @@ class BaseFormField extends StatelessWidget {
         SizedBox(
           height: 8,
         ),
-        TextFormField(
-          keyboardType: keyboardType,
-          obscureText: keyboardType == TextInputType.visiblePassword,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
+        formField,
         SizedBox(
           height: 16,
         ),
