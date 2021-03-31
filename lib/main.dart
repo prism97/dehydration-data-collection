@@ -1,3 +1,4 @@
+import 'package:data_collection_app/screens/log_in.dart';
 import 'package:data_collection_app/screens/sign_up.dart';
 import 'package:data_collection_app/screens/term_and_conditions.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
       routes: {
         TermsAndConditions.id: (context) => TermsAndConditions(),
         SignUp.id: (context) => SignUp(),
+        LogIn.id: (context) => LogIn(),
       },
       initialRoute: TermsAndConditions.id,
     );
