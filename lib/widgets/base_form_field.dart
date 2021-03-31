@@ -18,15 +18,14 @@ class BaseFormField extends StatelessWidget {
         Text(
           label,
           textAlign: TextAlign.left,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        SizedBox(
-          height: 8,
-        ),
+        SizedBox(height: 10),
         formField,
-        SizedBox(
-          height: 16,
-        ),
+        SizedBox(height: 28),
       ],
     );
   }

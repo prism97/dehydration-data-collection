@@ -10,12 +10,16 @@ class BaseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
+      padding: EdgeInsets.symmetric(vertical: 15),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
       color: Theme.of(context).primaryColor,
       textColor: Colors.white,
-      child: Text(text),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 18),
+      ),
       onPressed: onPressed,
     );
   }

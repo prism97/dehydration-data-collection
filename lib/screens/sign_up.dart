@@ -30,100 +30,108 @@ class _SignUpState extends State<SignUp> {
       appBar: AppBar(
         title: Text('App Name'),
       ),
-      body: SingleChildScrollView(
-        child: Form(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                BaseFormField(
-                  label: 'E-mail',
-                  formField: TextFormField(
-                    keyboardType: TextInputType.emailAddress,
-                    onChanged: (val) {
-                      setState(() {
-                        _email = val;
-                      });
-                    },
-                  ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Form(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(height: 10),
+                    BaseFormField(
+                      label: 'E-mail',
+                      formField: TextFormField(
+                        keyboardType: TextInputType.emailAddress,
+                        onChanged: (val) {
+                          setState(() {
+                            _email = val;
+                          });
+                        },
+                      ),
+                    ),
+                    BaseFormField(
+                      label: 'Sex',
+                      formField: DropdownButtonFormField<int>(
+                        value: _sex,
+                        items: sexOptions.entries.map((option) {
+                          return DropdownMenuItem<int>(
+                            value: option.value,
+                            child: Text(option.key),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            _sex = val;
+                          });
+                        },
+                      ),
+                    ),
+                    BaseFormField(
+                      label: 'Date of birth',
+                      formField: InputDatePickerFormField(
+                        fieldLabelText: '',
+                        fieldHintText: 'mm/dd/yyyy',
+                        firstDate: DateTime(1920),
+                        lastDate: DateTime.now(),
+                        onDateSaved: (newDate) {
+                          setState(() {
+                            _dateOfBirth = newDate;
+                          });
+                        },
+                      ),
+                    ),
+                    BaseFormField(
+                      label: 'Password',
+                      formField: TextFormField(
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: true,
+                        onChanged: (val) {
+                          setState(() {
+                            _password = val;
+                          });
+                        },
+                      ),
+                    ),
+                    BaseFormField(
+                      label: 'Confirm Password',
+                      formField: TextFormField(
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: true,
+                        onChanged: (val) {
+                          setState(() {
+                            _confirmPassword = val;
+                          });
+                        },
+                      ),
+                    ),
+                    BaseFormField(
+                      label: 'Enter your tentative weight (in kilograms)',
+                      formField: TextFormField(
+                        keyboardType: TextInputType.number,
+                        onChanged: (val) {
+                          setState(() {
+                            _weight = double.parse(val);
+                          });
+                        },
+                      ),
+                    ),
+                    _buildDiseaseCheckboxes(),
+                    BaseButton(
+                      text: 'Sign Up',
+                      onPressed: () {
+                        //TODO: form validation (later)
+                        //TODO: create user with email-password
+                        //TODO: add new user document to firestore users collection
+                      },
+                    ),
+                    SizedBox(height: 50),
+                  ],
                 ),
-                BaseFormField(
-                  label: 'Sex',
-                  formField: DropdownButtonFormField<int>(
-                    value: _sex,
-                    items: sexOptions.entries.map((option) {
-                      return DropdownMenuItem<int>(
-                        value: option.value,
-                        child: Text(option.key),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _sex = val;
-                      });
-                    },
-                  ),
-                ),
-                BaseFormField(
-                  label: 'Date of birth',
-                  formField: InputDatePickerFormField(
-                    fieldLabelText: '',
-                    fieldHintText: 'mm/dd/yyyy',
-                    firstDate: DateTime(1920),
-                    lastDate: DateTime.now(),
-                    onDateSaved: (newDate) {
-                      setState(() {
-                        _dateOfBirth = newDate;
-                      });
-                    },
-                  ),
-                ),
-                BaseFormField(
-                  label: 'Password',
-                  formField: TextFormField(
-                    keyboardType: TextInputType.visiblePassword,
-                    obscureText: true,
-                    onChanged: (val) {
-                      setState(() {
-                        _password = val;
-                      });
-                    },
-                  ),
-                ),
-                BaseFormField(
-                  label: 'Confirm Password',
-                  formField: TextFormField(
-                    keyboardType: TextInputType.visiblePassword,
-                    obscureText: true,
-                    onChanged: (val) {
-                      setState(() {
-                        _confirmPassword = val;
-                      });
-                    },
-                  ),
-                ),
-                BaseFormField(
-                  label: 'Enter your tentative weight (in kilograms)',
-                  formField: TextFormField(
-                    keyboardType: TextInputType.number,
-                    onChanged: (val) {
-                      setState(() {
-                        _weight = double.parse(val);
-                      });
-                    },
-                  ),
-                ),
-                _buildDiseaseCheckboxes(),
-                BaseButton(
-                  text: 'Sign Up',
-                  onPressed: () {
-                    //TODO: form validation (later)
-                    //TODO: create user with email-password
-                    //TODO: add new user document to firestore users collection
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -134,7 +142,7 @@ class _SignUpState extends State<SignUp> {
   BaseFormField _buildDiseaseCheckboxes() {
     return BaseFormField(
       label:
-          'Do you have any of the following diseases?\nCheck the ones that apply',
+          'Do you have any of the following diseases?\nPlease check the ones that apply.',
       formField: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
@@ -145,8 +153,14 @@ class _SignUpState extends State<SignUp> {
             CheckboxListTile(
               dense: true,
               value: _malnutrition,
-              title: Text('Malnutrition'),
-              subtitle: Text('e.g. vitamin/iron deficiency'),
+              title: Text(
+                'Malnutrition',
+                style: TextStyle(fontSize: 16),
+              ),
+              subtitle: Text(
+                'e.g. vitamin/iron deficiency',
+                style: TextStyle(fontSize: 14),
+              ),
               onChanged: (val) {
                 setState(() {
                   _malnutrition = val;
@@ -156,7 +170,10 @@ class _SignUpState extends State<SignUp> {
             CheckboxListTile(
               dense: true,
               value: _heartDisease,
-              title: Text('Heart Diseases'),
+              title: Text(
+                'Heart Diseases',
+                style: TextStyle(fontSize: 16),
+              ),
               onChanged: (val) {
                 setState(() {
                   _heartDisease = val;
@@ -166,7 +183,10 @@ class _SignUpState extends State<SignUp> {
             CheckboxListTile(
               dense: true,
               value: _kidneyDisease,
-              title: Text('Kidney Diseases'),
+              title: Text(
+                'Kidney Diseases',
+                style: TextStyle(fontSize: 16),
+              ),
               onChanged: (val) {
                 setState(() {
                   _kidneyDisease = val;
@@ -176,7 +196,10 @@ class _SignUpState extends State<SignUp> {
             CheckboxListTile(
               dense: true,
               value: _diabetes,
-              title: Text('Diabetes'),
+              title: Text(
+                'Diabetes',
+                style: TextStyle(fontSize: 16),
+              ),
               onChanged: (val) {
                 setState(() {
                   _diabetes = val;
@@ -186,7 +209,10 @@ class _SignUpState extends State<SignUp> {
             CheckboxListTile(
               dense: true,
               value: _skinDisease,
-              title: Text('Skin Diseases'),
+              title: Text(
+                'Skin Diseases',
+                style: TextStyle(fontSize: 16),
+              ),
               onChanged: (val) {
                 setState(() {
                   _skinDisease = val;
@@ -196,7 +222,10 @@ class _SignUpState extends State<SignUp> {
             CheckboxListTile(
               dense: true,
               value: _sleepDisorder,
-              title: Text('Sleep Disorder'),
+              title: Text(
+                'Sleep Disorder',
+                style: TextStyle(fontSize: 16),
+              ),
               onChanged: (val) {
                 setState(() {
                   _sleepDisorder = val;

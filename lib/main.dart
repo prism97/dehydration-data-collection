@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         SignUp.id: (context) => SignUp(),
         LogIn.id: (context) => LogIn(),
       },
-      initialRoute: TermsAndConditions.id,
+      initialRoute: SignUp.id,
     );
   }
 }
