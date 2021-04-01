@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 class BaseButton extends StatelessWidget {
   final String text;
   final Function onPressed;
+  final Color color;
 
-  const BaseButton({Key key, @required this.text, @required this.onPressed})
+  const BaseButton(
+      {Key key, @required this.text, @required this.onPressed, this.color})
       : super(key: key);
 
   @override
@@ -14,7 +16,7 @@ class BaseButton extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
-      color: Theme.of(context).primaryColor,
+      color: color ?? Theme.of(context).primaryColor,
       textColor: Colors.white,
       child: Text(
         text,

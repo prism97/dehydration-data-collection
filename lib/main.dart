@@ -1,3 +1,4 @@
+import 'package:data_collection_app/screens/entry_initial.dart';
 import 'package:data_collection_app/screens/home.dart';
 import 'package:data_collection_app/screens/log_in.dart';
 import 'package:data_collection_app/screens/sign_up.dart';
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         SignUp.id: (context) => SignUp(),
         LogIn.id: (context) => LogIn(),
         Home.id: (context) => Home(),
+        EntryInitial.id: (context) => EntryInitial(),
       },
       initialRoute: SignUp.id,
     );

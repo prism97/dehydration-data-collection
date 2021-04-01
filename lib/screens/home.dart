@@ -1,3 +1,4 @@
+import 'package:data_collection_app/screens/entry_initial.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:flutter/material.dart';
 
@@ -49,7 +50,9 @@ class Home extends StatelessWidget {
             ),
             BaseButton(
               text: 'PROVIDE NEW DATA',
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pushReplacementNamed(EntryInitial.id);
+              },
             ),
             Container(
               width: MediaQuery.of(context).size.width - 100,
