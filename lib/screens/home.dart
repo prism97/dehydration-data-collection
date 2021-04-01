@@ -1,9 +1,12 @@
 import 'package:data_collection_app/screens/entry_initial.dart';
+import 'package:data_collection_app/screens/log_in.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
   static final String id = 'home';
+  final auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +20,22 @@ class Home extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
-            onPressed: () {
-              //TODO: log out
+            onPressed: () async {
+              try {
+                auth.signOut();
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  LogIn.id,
+                  (route) => false,
+                );
+              } catch (ex) {
+                print(ex);
+              }
             },
           ),
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -41,7 +52,7 @@ class Home extends StatelessWidget {
                 ),
                 Text(
                   //TODO: show auth email
-                  'email@email.com',
+                  auth?.currentUser?.email ?? " ",
                   style: TextStyle(
                     fontSize: 16,
                   ),

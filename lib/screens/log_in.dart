@@ -1,4 +1,5 @@
 import 'package:data_collection_app/screens/sign_up.dart';
+import 'package:data_collection_app/screens/home.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:data_collection_app/widgets/base_form_field.dart';
 
@@ -39,19 +40,10 @@ class _LogInState extends State<LogIn> {
         );
 
         // TODO: Navigate to HomePage
-        // Navigator.of(context)
-        //       .pushNamedAndRemoveUntil('home', (Route<dynamic> route) => false);
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
-          content: Text(
-            "Logged In!",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          backgroundColor: Colors.green,
-        ));
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          Home.id,
+          (Route<dynamic> route) => false,
+        );
 
         setState(() {
           _loading = false;
