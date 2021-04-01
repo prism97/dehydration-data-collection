@@ -1,3 +1,4 @@
+import 'package:data_collection_app/screens/home.dart';
 import 'package:data_collection_app/screens/log_in.dart';
 import 'package:data_collection_app/screens/sign_up.dart';
 import 'package:data_collection_app/screens/term_and_conditions.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         TermsAndConditions.id: (context) => TermsAndConditions(),
         SignUp.id: (context) => SignUp(),
         LogIn.id: (context) => LogIn(),
+        Home.id: (context) => Home(),
       },
       initialRoute: TermsAndConditions.id,
     );

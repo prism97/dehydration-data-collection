@@ -1,4 +1,5 @@
 import 'package:data_collection_app/constants/maps.dart';
+import 'package:data_collection_app/screens/home.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:data_collection_app/widgets/base_form_field.dart';
 import 'package:flutter/material.dart';
@@ -121,6 +122,7 @@ class _SignUpState extends State<SignUp> {
                     //TODO: form validation (later)
                     //TODO: create user with email-password
                     //TODO: add new user document to firestore users collection
+                    Navigator.of(context).pushReplacementNamed(Home.id);
                   },
                 ),
               ],
