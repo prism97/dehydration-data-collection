@@ -20,6 +20,7 @@ class _SignUpState extends State<SignUp> {
   bool _loading = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _signUpFormKey = GlobalKey<FormState>();
+  final _dobController = TextEditingController();
 
   String _email, _password, _confirmPassword;
   int _sex;
@@ -176,14 +177,24 @@ class _SignUpState extends State<SignUp> {
                     ),
                     BaseFormField(
                       label: 'Date of Birth',
-                      formField: InputDatePickerFormField(
-                        fieldLabelText: '',
-                        fieldHintText: 'mm/dd/yyyy',
-                        firstDate: DateTime(1920),
-                        lastDate: DateTime.now(),
-                        onDateSubmitted: (newDate) {
+                      formField: TextFormField(
+                        controller: _dobController,
+                        readOnly: true,
+                        onTap: () async {
+                          final dob = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime(1990),
+                            firstDate: DateTime(1901),
+                            lastDate: DateTime.now(),
+                          );
+
                           setState(() {
-                            _dateOfBirth = newDate;
+                            _dateOfBirth = dob;
+                            _dobController.text = dob
+                                .toLocal()
+                                .toString()
+                                .split(" ")[0]
+                                .replaceAll("-", "/");
                           });
                         },
                       ),
