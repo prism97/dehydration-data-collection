@@ -35,6 +35,12 @@ dependencies:
   cloud_firestore: ^0.16.0+1
   firebase_storage: ^7.0.0
 
+  # Camera Dependecy
+  camera: 0.7.0+2
+
+  # Provider Dependecy
+  provider: ^4.3.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
