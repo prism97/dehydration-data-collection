@@ -1,7 +1,13 @@
 import 'package:data_collection_app/constants/maps.dart';
+import 'package:data_collection_app/screens/log_in.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:data_collection_app/widgets/base_form_field.dart';
+import 'package:data_collection_app/constants/values.dart';
+
 import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUp extends StatefulWidget {
   static final String id = 'sign_up';
@@ -11,6 +17,10 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  bool _loading = false;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _signUpFormKey = GlobalKey<FormState>();
+
   String _email, _password, _confirmPassword;
   int _sex;
   DateTime _dateOfBirth;
@@ -23,9 +33,102 @@ class _SignUpState extends State<SignUp> {
       _skinDisease = false,
       _sleepDisorder = false;
 
+  _registerUser() async {
+    FocusScope.of(context).unfocus();
+
+    setState(() {
+      _loading = true;
+    });
+
+    //TODO: form validation (later)
+    if (_signUpFormKey.currentState.validate()) {
+      if (_password != _confirmPassword) {
+        setState(() {
+          _loading = false;
+        });
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(
+            "Confirm password does not match with Password!",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.red,
+        ));
+      }
+
+      final auth = FirebaseAuth.instance;
+      final db = FirebaseFirestore.instance;
+
+      try {
+        final userCreds = await auth.createUserWithEmailAndPassword(
+          email: _email,
+          password: _password,
+        );
+
+        await db.collection(USERS_COLLECTION).doc(userCreds.user.uid).set({
+          'email': _email,
+          'sex': _sex,
+          'dateOfBirth': Timestamp.fromDate(_dateOfBirth),
+          'weight': _weight,
+          'diseases': {
+            'malnutrition': _malnutrition,
+            'heartDisease': _heartDisease,
+            'kidneyDisease': _kidneyDisease,
+            'diabetes': _diabetes,
+            'skinDisease': _skinDisease,
+            'sleepDisorder': _sleepDisorder,
+          }
+        });
+
+        setState(() {
+          _loading = false;
+        });
+
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          LogIn.id,
+          (route) => false,
+        );
+      } catch (ex) {
+        setState(() {
+          _loading = false;
+        });
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(
+            ex?.message ?? ex?.toString() ?? "SignUp failed! Try again!",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } else {
+      setState(() {
+        _loading = false;
+      });
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text(
+          "Please provide valid input!",
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
         title: Text('App Name'),
@@ -35,6 +138,7 @@ class _SignUpState extends State<SignUp> {
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: Form(
+              key: _signUpFormKey,
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -71,13 +175,13 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     BaseFormField(
-                      label: 'Date of birth',
+                      label: 'Date of Birth',
                       formField: InputDatePickerFormField(
                         fieldLabelText: '',
                         fieldHintText: 'mm/dd/yyyy',
                         firstDate: DateTime(1920),
                         lastDate: DateTime.now(),
-                        onDateSaved: (newDate) {
+                        onDateSubmitted: (newDate) {
                           setState(() {
                             _dateOfBirth = newDate;
                           });
@@ -120,13 +224,40 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     _buildDiseaseCheckboxes(),
-                    BaseButton(
-                      text: 'Sign Up',
-                      onPressed: () {
-                        //TODO: form validation (later)
-                        //TODO: create user with email-password
-                        //TODO: add new user document to firestore users collection
-                      },
+                    _loading
+                        ? SizedBox(
+                            width: 50,
+                            child: LinearProgressIndicator(),
+                          )
+                        : BaseButton(
+                            text: 'Sign Up',
+                            onPressed: _registerUser,
+                          ),
+                    SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Already have an account?",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(width: 5),
+                        InkWell(
+                          onTap: () =>
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                            LogIn.id,
+                            (route) => false,
+                          ),
+                          child: Text(
+                            "Sign In",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue.shade700,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 50),
                   ],
