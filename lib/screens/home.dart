@@ -1,8 +1,10 @@
+import 'package:data_collection_app/providers/data_id_provider.dart';
 import 'package:data_collection_app/screens/entry_initial.dart';
 import 'package:data_collection_app/screens/log_in.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatelessWidget {
   static final String id = 'home';
@@ -10,7 +12,7 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: fetch from database/local storage
+    // TODO: fetch from database/local storage (later)
     int _currentStep = 2;
 
     return Scaffold(
@@ -51,7 +53,6 @@ class Home extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  //TODO: show auth email
                   auth?.currentUser?.email ?? " ",
                   style: TextStyle(
                     fontSize: 16,
@@ -62,6 +63,7 @@ class Home extends StatelessWidget {
             BaseButton(
               text: 'PROVIDE NEW DATA',
               onPressed: () {
+                Provider.of<DataIdProvider>(context, listen: false).dataId = "";
                 Navigator.of(context).pushReplacementNamed(EntryInitial.id);
               },
             ),
