@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1008786648932",
+    "project_id": "dehydration-data-collection",
+    "storage_bucket": "dehydration-data-collection.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1008786648932:android:4123618bc593a725fa1471",
+        "android_client_info": {
+          "package_name": "com.buet.dehydration_data_collection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1008786648932-lpig1vcai3bqlsq7o14frffj5grp6a4q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjbXR8lG0I75fpqcLiLmK4OBMwVzW2wQk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1008786648932-lpig1vcai3bqlsq7o14frffj5grp6a4q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
