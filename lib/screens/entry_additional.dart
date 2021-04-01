@@ -1,7 +1,12 @@
 import 'package:data_collection_app/constants/maps.dart';
+import 'package:data_collection_app/constants/values.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:data_collection_app/widgets/base_form_field.dart';
+import './face_record.dart';
 import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EntryAdditional extends StatefulWidget {
   static final String id = 'entry_additional';
@@ -17,21 +22,85 @@ class EntryAdditional extends StatefulWidget {
 }
 
 class _EntryAdditionalState extends State<EntryAdditional> {
+  bool _loading = false;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
+  final auth = FirebaseAuth.instance;
+  final db = FirebaseFirestore.instance;
+
   int _appearanceLevel, _tearLevel, _skinPinchLevel, _respirationLevel;
   int _glassCount;
+
+  _insertData() async {
+    if (_formKey.currentState.validate()) {
+      setState(() {
+        _loading = true;
+      });
+
+      try {
+        await db.collection(DATA_COLLECTION).doc(widget.entryUid).update({
+          'appearanceLevel': _appearanceLevel,
+          'tearLevel': _tearLevel,
+          'skinPinchLevel': _skinPinchLevel,
+          'respirationLevel': _respirationLevel,
+          'glassCount': _glassCount,
+        });
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => FaceCapture(
+              entryUid: widget.entryUid,
+            ),
+          ),
+        );
+      } catch (ex) {
+        setState(() {
+          _loading = false;
+        });
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(
+            ex?.message ?? ex?.toString() ?? "Data Entry Failed!",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } else {
+      setState(() {
+        _loading = false;
+      });
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text(
+          "Please provide valid data!",
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     String str = widget.hydrated ? 'Hydrated' : 'Dehydrated';
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
         title: Text('App Name'),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
           child: Form(
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -146,10 +215,11 @@ class _EntryAdditionalState extends State<EntryAdditional> {
                       ),
                 BaseButton(
                   text: 'Submit',
-                  onPressed: () {
-                    //TODO: add info to entry in firestore
+                  onPressed: () async {
+                    await _insertData();
                   },
                 ),
+                SizedBox(height: 50),
               ],
             ),
           ),

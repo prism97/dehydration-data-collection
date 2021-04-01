@@ -1,18 +1,24 @@
-import 'package:data_collection_app/providers/data_id_provider.dart';
-import 'package:data_collection_app/screens/entry_initial.dart';
-import 'package:data_collection_app/screens/home.dart';
-import 'package:data_collection_app/screens/log_in.dart';
-import 'package:data_collection_app/screens/sign_up.dart';
-import 'package:data_collection_app/screens/term_and_conditions.dart';
+import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'providers/data_id_provider.dart';
+import 'screens/entry_initial.dart';
+import 'screens/home.dart';
+import 'screens/log_in.dart';
+import 'screens/sign_up.dart';
+import 'screens/term_and_conditions.dart';
+
+List<CameraDescription> cameras;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
+
+  cameras = await availableCameras();
 
   runApp(MyApp());
 }
@@ -29,7 +35,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'Dehydration Data Collection App',
         theme: ThemeData(
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
