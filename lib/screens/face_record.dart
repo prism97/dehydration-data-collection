@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:data_collection_app/constants/values.dart';
+import 'package:data_collection_app/utils.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart' show cameras;
@@ -28,6 +29,8 @@ class _FaceCaptureState extends State<FaceCapture> {
   CameraController _controller;
   final _progressStreamController = StreamController<double>();
   double _progress = 0.0;
+  List<Face> faces;
+  bool _detected = false;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final auth = FirebaseAuth.instance;
@@ -38,8 +41,9 @@ class _FaceCaptureState extends State<FaceCapture> {
   @override
   void initState() {
     super.initState();
+
     _controller = CameraController(
-      cameras[0],
+      cameras[1],
       ResolutionPreset.max,
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.jpeg,
@@ -49,6 +53,22 @@ class _FaceCaptureState extends State<FaceCapture> {
         return;
       }
       setState(() {});
+      ImageRotation rotation =
+          rotationIntToImageRotation(_controller.description.sensorOrientation);
+
+      _controller.startImageStream((image) {
+        detect(image, _faceDetector.processImage, rotation).then((value) {
+          faces = value;
+          if (faces.length != 1) return;
+          Face detectedFace = faces[0];
+          print(detectedFace.boundingBox);
+          if (true) {
+            setState(() {
+              _detected = true;
+            });
+          }
+        });
+      });
     });
   }
 
@@ -190,7 +210,7 @@ class _FaceCaptureState extends State<FaceCapture> {
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return InkWell(
-                          onTap: _captureVideo,
+                          onTap: _detected ? _captureVideo : () {},
                           child: Container(
                             margin: EdgeInsets.only(bottom: 20),
                             width: 75,
