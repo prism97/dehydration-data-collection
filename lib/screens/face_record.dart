@@ -11,6 +11,7 @@ import './mouth_record.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 
 class FaceCapture extends StatefulWidget {
   static const String id = "face_capture";
@@ -32,6 +33,7 @@ class _FaceCaptureState extends State<FaceCapture> {
   final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
+  final FaceDetector _faceDetector = FirebaseVision.instance.faceDetector();
 
   @override
   void initState() {
