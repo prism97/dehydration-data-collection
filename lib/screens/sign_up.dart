@@ -3,6 +3,7 @@ import 'package:data_collection_app/screens/log_in.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:data_collection_app/widgets/base_form_field.dart';
 import 'package:data_collection_app/constants/values.dart';
+import 'package:email_validator/email_validator.dart';
 
 import 'package:flutter/material.dart';
 
@@ -41,25 +42,7 @@ class _SignUpState extends State<SignUp> {
       _loading = true;
     });
 
-    //TODO: form validation (later)
     if (_signUpFormKey.currentState.validate()) {
-      if (_password != _confirmPassword) {
-        setState(() {
-          _loading = false;
-        });
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
-          content: Text(
-            "Confirm password does not match with Password!",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          backgroundColor: Colors.red,
-        ));
-      }
-
       final auth = FirebaseAuth.instance;
       final db = FirebaseFirestore.instance;
 
@@ -151,6 +134,9 @@ class _SignUpState extends State<SignUp> {
                       label: 'E-mail',
                       formField: TextFormField(
                         keyboardType: TextInputType.emailAddress,
+                        validator: (val) => EmailValidator.validate(val)
+                            ? null
+                            : 'Invalid e-mail address',
                         onChanged: (val) {
                           setState(() {
                             _email = val;
@@ -168,6 +154,8 @@ class _SignUpState extends State<SignUp> {
                             child: Text(option.key),
                           );
                         }).toList(),
+                        validator: (val) =>
+                            val == null ? 'This field is required' : null,
                         onChanged: (val) {
                           setState(() {
                             _sex = val;
@@ -180,6 +168,9 @@ class _SignUpState extends State<SignUp> {
                       formField: TextFormField(
                         controller: _dobController,
                         readOnly: true,
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'This field is required'
+                            : null,
                         onTap: () async {
                           final dob = await showDatePicker(
                             context: context,
@@ -204,6 +195,9 @@ class _SignUpState extends State<SignUp> {
                       formField: TextFormField(
                         keyboardType: TextInputType.visiblePassword,
                         obscureText: true,
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'This field is required'
+                            : null,
                         onChanged: (val) {
                           setState(() {
                             _password = val;
@@ -216,6 +210,11 @@ class _SignUpState extends State<SignUp> {
                       formField: TextFormField(
                         keyboardType: TextInputType.visiblePassword,
                         obscureText: true,
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'This field is required'
+                            : (val.compareTo(_password) == 0
+                                ? null
+                                : 'Passwords don\'t match'),
                         onChanged: (val) {
                           setState(() {
                             _confirmPassword = val;
@@ -227,6 +226,9 @@ class _SignUpState extends State<SignUp> {
                       label: 'Enter your tentative weight (in kilograms)',
                       formField: TextFormField(
                         keyboardType: TextInputType.number,
+                        validator: (val) => (val == null || val.isEmpty)
+                            ? 'This field is required'
+                            : null,
                         onChanged: (val) {
                           setState(() {
                             _weight = double.parse(val);

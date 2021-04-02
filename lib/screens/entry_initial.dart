@@ -23,10 +23,10 @@ class _EntryInitialState extends State<EntryInitial> {
   final db = FirebaseFirestore.instance;
   DocumentReference _docRef;
 
-  int _hoursOfSleep, _activityLevel;
+  int _hoursOfSleep, _activityLevel = 1;
   double _currentWeight;
 
-  _insertData(bool isHydrated) async {
+  Future<bool> _insertData(bool isHydrated) async {
     if (_formKey.currentState.validate()) {
       setState(() {
         _loading = true;
@@ -40,21 +40,25 @@ class _EntryInitialState extends State<EntryInitial> {
           'isHydrated': isHydrated,
           'uid': auth.currentUser.uid,
         });
+        return true;
       } catch (ex) {
         setState(() {
           _loading = false;
         });
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
-          content: Text(
-            ex?.message ?? ex?.toString() ?? "Data Entry Failed!",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white,
+        _scaffoldKey.currentState.showSnackBar(
+          SnackBar(
+            content: Text(
+              ex?.message ?? ex?.toString() ?? "Data Entry Failed!",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
+            backgroundColor: Colors.red,
           ),
-          backgroundColor: Colors.red,
-        ));
+        );
+        return false;
       }
     } else {
       setState(() {
@@ -71,6 +75,7 @@ class _EntryInitialState extends State<EntryInitial> {
         ),
         backgroundColor: Colors.red,
       ));
+      return false;
     }
   }
 
@@ -95,6 +100,9 @@ class _EntryInitialState extends State<EntryInitial> {
                   label: 'How many hours of sleep have you had today?',
                   formField: TextFormField(
                     keyboardType: TextInputType.number,
+                    validator: (val) => (val == null || val.isEmpty)
+                        ? 'This field is required'
+                        : null,
                     onChanged: (val) {
                       setState(() {
                         _hoursOfSleep = int.parse(val);
@@ -145,15 +153,16 @@ class _EntryInitialState extends State<EntryInitial> {
                       child: BaseButton(
                         text: 'Yes',
                         onPressed: () async {
-                          await _insertData(true);
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => EntryAdditional(
-                                hydrated: true,
-                                entryUid: _docRef.id,
+                          if (await _insertData(true)) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => EntryAdditional(
+                                  hydrated: true,
+                                  entryUid: _docRef.id,
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          }
                         },
                       ),
                     ),
@@ -165,15 +174,16 @@ class _EntryInitialState extends State<EntryInitial> {
                         text: 'No',
                         color: Colors.redAccent.shade100,
                         onPressed: () async {
-                          await _insertData(true);
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => EntryAdditional(
-                                hydrated: false,
-                                entryUid: _docRef.id,
+                          if (await _insertData(false)) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => EntryAdditional(
+                                  hydrated: false,
+                                  entryUid: _docRef.id,
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          }
                         },
                       ),
                     ),

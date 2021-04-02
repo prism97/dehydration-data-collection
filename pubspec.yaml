@@ -41,6 +41,9 @@ dependencies:
   # Provider Dependecy
   provider: ^4.3.3
 
+  # other
+  email_validator: ^2.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

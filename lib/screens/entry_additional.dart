@@ -2,6 +2,7 @@ import 'package:data_collection_app/constants/maps.dart';
 import 'package:data_collection_app/constants/values.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:data_collection_app/widgets/base_form_field.dart';
+import 'package:flutter/cupertino.dart';
 import './face_record.dart';
 import 'package:flutter/material.dart';
 
@@ -28,8 +29,13 @@ class _EntryAdditionalState extends State<EntryAdditional> {
   final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
 
-  int _appearanceLevel, _tearLevel, _skinPinchLevel, _respirationLevel;
+  int _appearanceLevel = 0,
+      _tearLevel = 0,
+      _skinPinchLevel = 0,
+      _respirationLevel = 0;
   int _glassCount;
+  TimeOfDay _lastFluidIntakeTime;
+  TextEditingController _controller = TextEditingController();
 
   _insertData() async {
     if (_formKey.currentState.validate()) {
@@ -38,13 +44,18 @@ class _EntryAdditionalState extends State<EntryAdditional> {
       });
 
       try {
-        await db.collection(DATA_COLLECTION).doc(widget.entryUid).update({
+        Map<String, dynamic> entry = {
           'appearanceLevel': _appearanceLevel,
           'tearLevel': _tearLevel,
           'skinPinchLevel': _skinPinchLevel,
           'respirationLevel': _respirationLevel,
-          'glassCount': _glassCount,
-        });
+        };
+        if (widget.hydrated) {
+          entry['glassCount'] = _glassCount;
+        } else {
+          entry['lastFluidIntakeTime'] = _lastFluidIntakeTime.format(context);
+        }
+        await db.collection(DATA_COLLECTION).doc(widget.entryUid).update(entry);
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -197,9 +208,12 @@ class _EntryAdditionalState extends State<EntryAdditional> {
                 widget.hydrated
                     ? BaseFormField(
                         label:
-                            'How many glasses of fluid did you take recently?',
+                            'How many glasses of fluid did you take in the last 4 hours?',
                         formField: TextFormField(
                           keyboardType: TextInputType.number,
+                          validator: (val) => (val == null || val.isEmpty)
+                              ? 'This field is required'
+                              : null,
                           onChanged: (val) {
                             setState(() {
                               _glassCount = int.parse(val);
@@ -210,7 +224,20 @@ class _EntryAdditionalState extends State<EntryAdditional> {
                     : BaseFormField(
                         label: 'Last time of fluid intake',
                         formField: TextFormField(
-                          keyboardType: TextInputType.number,
+                          readOnly: true,
+                          controller: _controller,
+                          validator: (val) => (_controller.text == null ||
+                                  _controller.text.isEmpty)
+                              ? 'This field is required'
+                              : null,
+                          onTap: () async {
+                            _lastFluidIntakeTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
+                            _controller.text =
+                                _lastFluidIntakeTime.format(context);
+                          },
                         ),
                       ),
                 BaseButton(

@@ -2,6 +2,7 @@ import 'package:data_collection_app/screens/sign_up.dart';
 import 'package:data_collection_app/screens/home.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:data_collection_app/widgets/base_form_field.dart';
+import 'package:email_validator/email_validator.dart';
 
 import 'package:flutter/material.dart';
 
@@ -27,7 +28,7 @@ class _LogInState extends State<LogIn> {
     setState(() {
       _loading = true;
     });
-    //TODO: form validation (later)
+
     if (_logInFormKey.currentState.validate() &&
         _email != null &&
         _password != null) {
@@ -39,7 +40,6 @@ class _LogInState extends State<LogIn> {
           password: _password,
         );
 
-        // TODO: Navigate to HomePage
         Navigator.of(context).pushNamedAndRemoveUntil(
           Home.id,
           (Route<dynamic> route) => false,
@@ -48,11 +48,6 @@ class _LogInState extends State<LogIn> {
         setState(() {
           _loading = false;
         });
-
-        // Navigator.of(context).pushNamedAndRemoveUntil(
-        //   LogIn.id,
-        //   (route) => false,
-        // );
       } catch (ex) {
         setState(() {
           _loading = false;
@@ -109,6 +104,9 @@ class _LogInState extends State<LogIn> {
                   label: 'E-mail',
                   formField: TextFormField(
                     keyboardType: TextInputType.emailAddress,
+                    validator: (val) => EmailValidator.validate(val)
+                        ? null
+                        : 'Invalid e-mail address',
                     onChanged: (val) {
                       setState(() {
                         _email = val;
@@ -121,6 +119,9 @@ class _LogInState extends State<LogIn> {
                   formField: TextFormField(
                     keyboardType: TextInputType.visiblePassword,
                     obscureText: true,
+                    validator: (val) => (val == null || val.isEmpty)
+                        ? 'This field is required'
+                        : null,
                     onChanged: (val) {
                       setState(() {
                         _password = val;
