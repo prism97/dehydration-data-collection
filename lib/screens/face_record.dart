@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:data_collection_app/constants/values.dart';
 import 'package:data_collection_app/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart' show cameras;
 import './mouth_record.dart';
@@ -165,6 +166,8 @@ class _FaceCaptureState extends State<FaceCapture> {
           .doc(widget.entryUid)
           .update({'faceVideoURL': fileURL});
 
+      await _addEntryToSharedPreferences();
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => MouthCapture(
@@ -185,6 +188,17 @@ class _FaceCaptureState extends State<FaceCapture> {
         backgroundColor: Colors.red,
       ));
     }
+  }
+
+  Future<void> _addEntryToSharedPreferences() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String currentUserId = FirebaseAuth.instance.currentUser.uid;
+    List<String> timestampStrings = [];
+    if (sharedPreferences.containsKey(currentUserId)) {
+      timestampStrings.addAll(sharedPreferences.getStringList(currentUserId));
+    }
+    timestampStrings.add(DateTime.now().toIso8601String());
+    sharedPreferences.setStringList(currentUserId, timestampStrings);
   }
 
   @override

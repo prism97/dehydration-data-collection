@@ -5,10 +5,30 @@ import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatelessWidget {
   static final String id = 'home';
   final auth = FirebaseAuth.instance;
+
+  // returns true if a new entry can be taken
+  Future<bool> _checkMinimumTimeInterval() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String currentUserId = FirebaseAuth.instance.currentUser.uid;
+
+    if (sharedPreferences.containsKey(currentUserId)) {
+      String timestampString =
+          sharedPreferences.getStringList(currentUserId).last;
+      DateTime lastEntryTime = DateTime.parse(timestampString);
+      if (DateTime.now().difference(lastEntryTime).inHours >= 4) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +80,26 @@ class Home extends StatelessWidget {
                 ),
               ],
             ),
-            BaseButton(
-              text: 'PROVIDE NEW DATA',
-              onPressed: () {
-                Provider.of<DataIdProvider>(context, listen: false).dataId = "";
-                Navigator.of(context).pushReplacementNamed(EntryInitial.id);
-              },
-            ),
+            FutureBuilder<bool>(
+                future: _checkMinimumTimeInterval(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return snapshot.data
+                        ? BaseButton(
+                            text: 'PROVIDE NEW DATA',
+                            onPressed: () {
+                              Provider.of<DataIdProvider>(context,
+                                      listen: false)
+                                  .dataId = "";
+                              Navigator.of(context)
+                                  .pushReplacementNamed(EntryInitial.id);
+                            },
+                          )
+                        : Text(
+                            'Less than 4 hours have passed since your last entry. Please wait a while before providing the next entry!');
+                  }
+                  return Container();
+                }),
             Container(
               width: MediaQuery.of(context).size.width - 100,
               height: 200,
