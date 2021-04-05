@@ -16,7 +16,7 @@ class EntryInitial extends StatefulWidget {
 }
 
 class _EntryInitialState extends State<EntryInitial> {
-  bool _loading = false;
+  bool _loading = false, _moisturizedCheck = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final auth = FirebaseAuth.instance;
@@ -27,7 +27,7 @@ class _EntryInitialState extends State<EntryInitial> {
   double _currentWeight;
 
   Future<bool> _insertData(bool isHydrated) async {
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState.validate() && _moisturizedCheck) {
       setState(() {
         _loading = true;
       });
@@ -139,8 +139,26 @@ class _EntryInitialState extends State<EntryInitial> {
                     }).toList(),
                   ),
                 ),
+                Divider(
+                  height: 2,
+                  thickness: 2,
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: CheckboxListTile(
+                    dense: true,
+                    value: _moisturizedCheck,
+                    title: Text(
+                        'I have not applied any moisturizer to my face in the last 6 hours'),
+                    onChanged: (val) {
+                      setState(() {
+                        _moisturizedCheck = val;
+                      });
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: Text(
                     'Are you hydrated now?',
                     textAlign: TextAlign.start,
