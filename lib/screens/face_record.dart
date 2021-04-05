@@ -30,7 +30,9 @@ class _FaceCaptureState extends State<FaceCapture> {
   final _progressStreamController = StreamController<double>();
   double _progress = 0.0;
   List<Face> faces;
-  bool _detected = false;
+  bool _detected = false,
+      _recordingStarted = false,
+      _imageStreamStarted = false;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final auth = FirebaseAuth.instance;
@@ -46,29 +48,53 @@ class _FaceCaptureState extends State<FaceCapture> {
       cameras[1],
       ResolutionPreset.max,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      // imageFormatGroup: ImageFormatGroup.jpeg,
     );
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
       }
       setState(() {});
-      ImageRotation rotation =
-          rotationIntToImageRotation(_controller.description.sensorOrientation);
+    });
+  }
 
-      _controller.startImageStream((image) {
+  void _detectFaceFromImageStream(BuildContext context) {
+    final double scale = MediaQuery.of(context).devicePixelRatio;
+    // bounding box dimensions
+    final double left =
+        scale * (MediaQuery.of(context).size.width * (0.25 / 2));
+    final double top = scale * 50;
+    final double right =
+        scale * MediaQuery.of(context).size.width * (0.75 + (0.25 / 2));
+    final double bottom =
+        scale * (50 + MediaQuery.of(context).size.height * 0.55);
+
+    ImageRotation rotation =
+        rotationIntToImageRotation(_controller.description.sensorOrientation);
+
+    _imageStreamStarted = true;
+    _controller.startImageStream((image) {
+      if (!_detected) {
         detect(image, _faceDetector.processImage, rotation).then((value) {
           faces = value;
           if (faces.length != 1) return;
+          print('face detected');
           Face detectedFace = faces[0];
-          print(detectedFace.boundingBox);
-          if (true) {
+          final box = detectedFace.boundingBox;
+          // TODO : check left condition
+          if (box.left < left &&
+              box.top > top &&
+              box.right < right &&
+              box.bottom < bottom) {
+            print(detectedFace.boundingBox);
+            print('left : $left, top : $top, right : $right, bottom : $bottom');
+
             setState(() {
               _detected = true;
             });
           }
         });
-      });
+      }
     });
   }
 
@@ -87,7 +113,7 @@ class _FaceCaptureState extends State<FaceCapture> {
       cameraDescription,
       ResolutionPreset.max,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      // imageFormatGroup: ImageFormatGroup.jpeg,
     );
     _controller = cameraController;
 
@@ -163,6 +189,17 @@ class _FaceCaptureState extends State<FaceCapture> {
 
   @override
   Widget build(BuildContext context) {
+    if (_controller.value.isInitialized && !_imageStreamStarted) {
+      _detectFaceFromImageStream(context);
+    }
+
+    if (_controller.value.isInitialized && _detected && !_recordingStarted) {
+      _controller.stopImageStream().then((value) {
+        _recordingStarted = true;
+        _captureVideo();
+      });
+    }
+
     if (!_controller.value.isInitialized) {
       return Scaffold(
         key: _scaffoldKey,
