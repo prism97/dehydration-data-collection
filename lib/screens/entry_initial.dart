@@ -90,7 +90,7 @@ class _EntryInitialState extends State<EntryInitial> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(28, 16, 28, 50),
           child: Form(
             key: _formKey,
             child: Column(
@@ -129,7 +129,10 @@ class _EntryInitialState extends State<EntryInitial> {
                         dense: true,
                         groupValue: _activityLevel,
                         value: option.value,
-                        title: Text(option.key),
+                        title: Text(
+                          option.key,
+                          style: TextStyle(fontSize: 16),
+                        ),
                         onChanged: (val) {
                           setState(() {
                             _activityLevel = val;
@@ -143,13 +146,16 @@ class _EntryInitialState extends State<EntryInitial> {
                   height: 2,
                   thickness: 2,
                 ),
+                SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: CheckboxListTile(
                     dense: true,
                     value: _moisturizedCheck,
                     title: Text(
-                        'I have not applied any moisturizer to my face in the last 6 hours'),
+                      'I have not applied any moisturizer to my face in the last 6 hours',
+                      style: TextStyle(fontSize: 16),
+                    ),
                     onChanged: (val) {
                       setState(() {
                         _moisturizedCheck = val;
@@ -162,7 +168,10 @@ class _EntryInitialState extends State<EntryInitial> {
                   child: Text(
                     'Are you hydrated now?',
                     textAlign: TextAlign.start,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Row(

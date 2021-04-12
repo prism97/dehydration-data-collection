@@ -109,30 +109,41 @@ class _EntryAdditionalState extends State<EntryAdditional> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
+          padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '$str entry',
+                  '$str Entry',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontSize: 20,
                   ),
                 ),
-                SizedBox(
-                  height: 10,
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.grey.shade700,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Please enter the following information based on  your personal observations',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  'Please enter the following information based on  your personal observations',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
+                SizedBox(height: 20),
                 BaseFormField(
                   label: 'General Appearance',
                   formField: Column(
@@ -141,7 +152,10 @@ class _EntryAdditionalState extends State<EntryAdditional> {
                         dense: true,
                         groupValue: _appearanceLevel,
                         value: option.value,
-                        title: Text(option.key),
+                        title: Text(
+                          option.key,
+                          style: TextStyle(fontSize: 16),
+                        ),
                         onChanged: (val) {
                           setState(() {
                             _appearanceLevel = val;
@@ -159,7 +173,10 @@ class _EntryAdditionalState extends State<EntryAdditional> {
                         dense: true,
                         groupValue: _tearLevel,
                         value: option.value,
-                        title: Text(option.key),
+                        title: Text(
+                          option.key,
+                          style: TextStyle(fontSize: 16),
+                        ),
                         onChanged: (val) {
                           setState(() {
                             _tearLevel = val;
@@ -177,7 +194,10 @@ class _EntryAdditionalState extends State<EntryAdditional> {
                         dense: true,
                         groupValue: _skinPinchLevel,
                         value: option.value,
-                        title: Text(option.key),
+                        title: Text(
+                          option.key,
+                          style: TextStyle(fontSize: 16),
+                        ),
                         onChanged: (val) {
                           setState(() {
                             _skinPinchLevel = val;
@@ -195,7 +215,10 @@ class _EntryAdditionalState extends State<EntryAdditional> {
                         dense: true,
                         groupValue: _respirationLevel,
                         value: option.value,
-                        title: Text(option.key),
+                        title: Text(
+                          option.key,
+                          style: TextStyle(fontSize: 16),
+                        ),
                         onChanged: (val) {
                           setState(() {
                             _respirationLevel = val;

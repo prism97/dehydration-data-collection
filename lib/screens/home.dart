@@ -114,11 +114,18 @@ class Home extends StatelessWidget {
                   'Preferred times for data entry',
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    fontSize: 15,
+                    fontSize: 16,
                   ),
                 ),
-                Text('• Before iftar'),
-                Text('• Before going to sleep at night'),
+                SizedBox(height: 5),
+                Text(
+                  '• Before iftar',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  '• Before going to sleep at night',
+                  style: TextStyle(fontSize: 16),
+                ),
               ],
             ),
             FutureBuilder<bool>(
