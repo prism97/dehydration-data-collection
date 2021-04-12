@@ -43,11 +43,13 @@ class _MouthCaptureState extends State<MouthCapture> {
   void initState() {
     super.initState();
 
+    final frontCamera = cameras.firstWhere(
+      (cam) => cam.lensDirection == CameraLensDirection.front,
+    );
     _controller = CameraController(
-      cameras[1],
+      frontCamera ?? cameras.last,
       ResolutionPreset.max,
       enableAudio: false,
-      // imageFormatGroup: ImageFormatGroup.jpeg,
     );
     _controller.initialize().then((_) {
       if (!mounted) {
@@ -119,37 +121,7 @@ class _MouthCaptureState extends State<MouthCapture> {
     super.dispose();
   }
 
-  void onNewCameraSelected(CameraDescription cameraDescription) async {
-    if (_controller != null) {
-      await _controller.dispose();
-    }
-    final CameraController cameraController = CameraController(
-      cameraDescription,
-      ResolutionPreset.max,
-      enableAudio: false,
-      // imageFormatGroup: ImageFormatGroup.jpeg,
-    );
-    _controller = cameraController;
-
-    // If the controller is updated then update the UI.
-    cameraController.addListener(() {
-      if (mounted) setState(() {});
-      if (cameraController.value.hasError) {
-        print("Camera Error!");
-      }
-    });
-
-    try {
-      await cameraController.initialize();
-    } on CameraException catch (e) {
-      print(e);
-    }
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  _captureVideo() async {
+  void _captureVideo() async {
     _controller.startVideoRecording();
     while (_progress < 1.0) {
       await Future.delayed(Duration(milliseconds: 50), () {
