@@ -1,6 +1,7 @@
-import 'package:data_collection_app/screens/sign_up.dart';
-import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:flutter/material.dart';
+
+import '../widgets/base_button.dart';
+import 'sign_up.dart';
 
 class TermsAndConditions extends StatelessWidget {
   static final String id = 'terms_and_conditions';

@@ -1,6 +1,7 @@
-import 'package:data_collection_app/screens/home.dart';
-import 'package:data_collection_app/screens/mouth_record.dart';
 import 'package:flutter/material.dart';
+
+import 'home.dart';
+import 'mouth_record.dart';
 
 class MouthDemo extends StatelessWidget {
   static final String id = 'mouth_demo';

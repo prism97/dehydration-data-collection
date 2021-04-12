@@ -1,13 +1,13 @@
-import 'package:data_collection_app/constants/maps.dart';
-import 'package:data_collection_app/constants/values.dart';
-import 'package:data_collection_app/screens/face_demo.dart';
-import 'package:data_collection_app/widgets/base_button.dart';
-import 'package:data_collection_app/widgets/base_form_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../constants/maps.dart';
+import '../constants/values.dart';
+import '../widgets/base_button.dart';
+import '../widgets/base_form_field.dart';
+import 'face_demo.dart';
 
 class EntryAdditional extends StatefulWidget {
   static final String id = 'entry_additional';

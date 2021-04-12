@@ -1,5 +1,6 @@
-import 'package:data_collection_app/screens/face_record.dart';
 import 'package:flutter/material.dart';
+
+import 'face_record.dart';
 
 class FaceDemo extends StatelessWidget {
   static final String id = 'mouth_demo';

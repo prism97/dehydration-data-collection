@@ -1,8 +1,8 @@
-import 'package:data_collection_app/constants/maps.dart';
-import 'package:data_collection_app/constants/values.dart';
-import 'package:data_collection_app/screens/entry_additional.dart';
-import 'package:data_collection_app/widgets/base_button.dart';
-import 'package:data_collection_app/widgets/base_form_field.dart';
+import '../constants/maps.dart';
+import '../constants/values.dart';
+import 'entry_additional.dart';
+import '../widgets/base_button.dart';
+import '../widgets/base_form_field.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';

@@ -1,12 +1,11 @@
-import 'package:data_collection_app/screens/sign_up.dart';
-import 'package:data_collection_app/screens/home.dart';
-import 'package:data_collection_app/widgets/base_button.dart';
-import 'package:data_collection_app/widgets/base_form_field.dart';
 import 'package:email_validator/email_validator.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
+import '../widgets/base_button.dart';
+import '../widgets/base_form_field.dart';
+import 'home.dart';
+import 'sign_up.dart';
 
 class LogIn extends StatefulWidget {
   static final String id = 'log_in';

@@ -2,18 +2,17 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:data_collection_app/constants/values.dart';
-import 'package:data_collection_app/screens/mouth_demo.dart';
-import 'package:data_collection_app/utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constants/values.dart';
 import '../main.dart' show cameras;
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import '../utils.dart';
+import 'mouth_demo.dart';
 
 class FaceCapture extends StatefulWidget {
   FaceCapture({Key key, this.entryUid}) : super(key: key);
