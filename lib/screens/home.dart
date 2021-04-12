@@ -30,10 +30,36 @@ class Home extends StatelessWidget {
     }
   }
 
+  Future<int> _getCurrentStepFromLocalStorage() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String currentUserId = FirebaseAuth.instance.currentUser.uid;
+
+    if (sharedPreferences.containsKey(currentUserId)) {
+      int currentStep = 0;
+      List<String> timestampStrings =
+          sharedPreferences.getStringList(currentUserId);
+
+      String currentDay = timestampStrings.first;
+      int currentDayEntryCount = 0;
+      timestampStrings.forEach((str) {
+        if (currentDay.substring(0, 10).compareTo(str.substring(0, 10)) == 0) {
+          currentDayEntryCount++;
+        } else {
+          if (currentDayEntryCount >= 2) currentStep++;
+          currentDayEntryCount = 1;
+          currentDay = str;
+        }
+      });
+      if (currentDayEntryCount >= 2) currentStep++;
+      return (currentStep > 5) ? 5 : currentStep;
+    } else {
+      return 0;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: fetch from database/local storage (later)
-    int _currentStep = 2;
+    int _currentStep;
 
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColorLight,
@@ -80,6 +106,20 @@ class Home extends StatelessWidget {
                 ),
               ],
             ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Preferred times for data entry',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                  ),
+                ),
+                Text('• Before iftar'),
+                Text('• Before going to sleep at night'),
+              ],
+            ),
             FutureBuilder<bool>(
                 future: _checkMinimumTimeInterval(),
                 builder: (context, snapshot) {
@@ -100,35 +140,46 @@ class Home extends StatelessWidget {
                   }
                   return Container();
                 }),
-            Container(
-              width: MediaQuery.of(context).size.width - 100,
-              height: 200,
-              child: Theme(
-                data: ThemeData(
-                  canvasColor: Theme.of(context).primaryColorLight,
-                  shadowColor: Colors.transparent,
-                ),
-                child: Stepper(
-                  type: StepperType.horizontal,
-                  physics: NeverScrollableScrollPhysics(),
-                  controlsBuilder: (BuildContext context,
-                      {onStepContinue, onStepCancel}) {
-                    return Text(
-                      'You have ${5 - _currentStep} more entries to go!',
-                      textAlign: TextAlign.center,
+            FutureBuilder<int>(
+                future: _getCurrentStepFromLocalStorage(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    _currentStep = snapshot.data;
+                    return Container(
+                      width: MediaQuery.of(context).size.width - 100,
+                      height: 200,
+                      child: Theme(
+                        data: ThemeData(
+                          canvasColor: Theme.of(context).primaryColorLight,
+                          shadowColor: Colors.transparent,
+                        ),
+                        child: Stepper(
+                          type: StepperType.horizontal,
+                          physics: NeverScrollableScrollPhysics(),
+                          controlsBuilder: (BuildContext context,
+                              {onStepContinue, onStepCancel}) {
+                            return Text(
+                              'You have ${5 - _currentStep} more entries to go!',
+                              textAlign: TextAlign.center,
+                            );
+                          },
+                          steps: [
+                            _buildStep(_currentStep, 1),
+                            _buildStep(_currentStep, 2),
+                            _buildStep(_currentStep, 3),
+                            _buildStep(_currentStep, 4),
+                            _buildStep(_currentStep, 5),
+                          ],
+                          currentStep: _currentStep,
+                        ),
+                      ),
                     );
-                  },
-                  steps: [
-                    _buildStep(_currentStep, 1),
-                    _buildStep(_currentStep, 2),
-                    _buildStep(_currentStep, 3),
-                    _buildStep(_currentStep, 4),
-                    _buildStep(_currentStep, 5),
-                  ],
-                  currentStep: _currentStep,
-                ),
-              ),
-            ),
+                  }
+                  return Container(
+                    width: 0,
+                    height: 0,
+                  );
+                }),
           ],
         ),
       ),
