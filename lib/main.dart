@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:data_collection_app/screens/mouth_demo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

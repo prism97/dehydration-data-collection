@@ -1,9 +1,9 @@
 import 'package:data_collection_app/constants/maps.dart';
 import 'package:data_collection_app/constants/values.dart';
+import 'package:data_collection_app/screens/face_demo.dart';
 import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:data_collection_app/widgets/base_form_field.dart';
 import 'package:flutter/cupertino.dart';
-import './face_record.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -59,7 +59,7 @@ class _EntryAdditionalState extends State<EntryAdditional> {
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => FaceCapture(
+            builder: (context) => FaceDemo(
               entryUid: widget.entryUid,
             ),
           ),

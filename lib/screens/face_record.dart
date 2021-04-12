@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:data_collection_app/constants/values.dart';
+import 'package:data_collection_app/screens/mouth_demo.dart';
 import 'package:data_collection_app/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart' show cameras;
-import './mouth_record.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,8 +16,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 
 class FaceCapture extends StatefulWidget {
-  static const String id = "face_capture";
-
   FaceCapture({Key key, this.entryUid}) : super(key: key);
 
   final String entryUid;
@@ -150,7 +148,7 @@ class _FaceCaptureState extends State<FaceCapture> {
 
       final uploadTask = storage
           .ref()
-          .child('videos/${vidFile.name}')
+          .child('face_videos/${vidFile.name}')
           .putFile(File(vidFile.path));
 
       await Future.delayed(Duration(milliseconds: 100), () {
@@ -170,7 +168,7 @@ class _FaceCaptureState extends State<FaceCapture> {
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => MouthCapture(
+          builder: (context) => MouthDemo(
             entryUid: widget.entryUid,
           ),
         ),

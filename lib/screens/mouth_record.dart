@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:data_collection_app/constants/values.dart';
 import 'package:data_collection_app/screens/home.dart';
+import 'package:data_collection_app/utils.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart' show cameras;
@@ -11,11 +12,10 @@ import '../main.dart' show cameras;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 
 class MouthCapture extends StatefulWidget {
-  static const String id = "face_capture";
-
-  MouthCapture({Key key, this.entryUid}) : super(key: key);
+  MouthCapture({Key key, @required this.entryUid}) : super(key: key);
 
   final String entryUid;
 
@@ -27,26 +27,89 @@ class _MouthCaptureState extends State<MouthCapture> {
   CameraController _controller;
   final _progressStreamController = StreamController<double>();
   double _progress = 0.0;
+  List<Face> faces;
+  bool _detected = false,
+      _recordingStarted = false,
+      _imageStreamStarted = false;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
+  final FaceDetector _faceDetector = FirebaseVision.instance.faceDetector(
+    FaceDetectorOptions(enableLandmarks: true),
+  );
 
   @override
   void initState() {
     super.initState();
+
     _controller = CameraController(
-      cameras[0],
+      cameras[1],
       ResolutionPreset.max,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      // imageFormatGroup: ImageFormatGroup.jpeg,
     );
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
       }
       setState(() {});
+    });
+  }
+
+  void _detectFaceFromImageStream(BuildContext context) {
+    final double scale = MediaQuery.of(context).devicePixelRatio;
+    // bounding box dimensions
+    final double left =
+        scale * (MediaQuery.of(context).size.width * (0.25 / 2));
+    final double top = scale * 50;
+    final double right =
+        scale * MediaQuery.of(context).size.width * (0.75 + (0.25 / 2));
+    final double bottom =
+        scale * (50 + MediaQuery.of(context).size.height * 0.55);
+
+    ImageRotation rotation =
+        rotationIntToImageRotation(_controller.description.sensorOrientation);
+
+    _imageStreamStarted = true;
+    _controller.startImageStream((image) {
+      if (!_detected) {
+        detect(image, _faceDetector.processImage, rotation).then((value) {
+          faces = value;
+          if (faces.length != 1) return;
+          print('face detected');
+          Face detectedFace = faces[0];
+
+          FaceLandmark noseBase =
+              detectedFace.getLandmark(FaceLandmarkType.noseBase);
+          FaceLandmark leftMouth =
+              detectedFace.getLandmark(FaceLandmarkType.leftMouth);
+          FaceLandmark rightMouth =
+              detectedFace.getLandmark(FaceLandmarkType.rightMouth);
+          FaceLandmark bottomMouth =
+              detectedFace.getLandmark(FaceLandmarkType.bottomMouth);
+          if (bottomMouth == null || leftMouth == null || rightMouth == null) {
+            return;
+          } else {
+            print('mouth detected');
+          }
+
+          double openMouthGap = bottomMouth.position.dy - noseBase.position.dy;
+          if (leftMouth.position.dx > left &&
+              rightMouth.position.dx < right &&
+              bottomMouth.position.dy < bottom &&
+              openMouthGap > 200) {
+            // print('left : $left, top : $top, right : $right, bottom : $bottom');
+            // print(noseBase.position.dy);
+            // print(bottomMouth.position.dy);
+
+            setState(() {
+              _detected = true;
+            });
+          }
+        });
+      }
     });
   }
 
@@ -65,7 +128,7 @@ class _MouthCaptureState extends State<MouthCapture> {
       cameraDescription,
       ResolutionPreset.max,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      // imageFormatGroup: ImageFormatGroup.jpeg,
     );
     _controller = cameraController;
 
@@ -101,7 +164,7 @@ class _MouthCaptureState extends State<MouthCapture> {
 
       final uploadTask = storage
           .ref()
-          .child('videos/${vidFile.name}')
+          .child('mouth_videos/${vidFile.name}')
           .putFile(File(vidFile.path));
 
       await Future.delayed(Duration(milliseconds: 100), () {
@@ -116,6 +179,8 @@ class _MouthCaptureState extends State<MouthCapture> {
           .collection(DATA_COLLECTION)
           .doc(widget.entryUid)
           .update({'mouthVideoURL': fileURL});
+
+      Navigator.of(context).pushReplacementNamed(Home.id);
     } catch (ex) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text(
@@ -133,6 +198,17 @@ class _MouthCaptureState extends State<MouthCapture> {
 
   @override
   Widget build(BuildContext context) {
+    if (_controller.value.isInitialized && !_imageStreamStarted) {
+      _detectFaceFromImageStream(context);
+    }
+
+    if (_controller.value.isInitialized && _detected && !_recordingStarted) {
+      _controller.stopImageStream().then((value) {
+        _recordingStarted = true;
+        _captureVideo();
+      });
+    }
+
     if (!_controller.value.isInitialized) {
       return Scaffold(
         key: _scaffoldKey,
@@ -147,25 +223,6 @@ class _MouthCaptureState extends State<MouthCapture> {
     return Scaffold(
       appBar: AppBar(
         title: Text("App Name"),
-        actions: [
-          InkWell(
-            onTap: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                Home.id,
-                (route) => false,
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 20, 10, 0),
-              child: Text(
-                "Skip this Section",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Container(
@@ -199,7 +256,7 @@ class _MouthCaptureState extends State<MouthCapture> {
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return InkWell(
-                          onTap: _captureVideo,
+                          onTap: _detected ? _captureVideo : () {},
                           child: Container(
                             margin: EdgeInsets.only(bottom: 20),
                             width: 75,
