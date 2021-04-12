@@ -11,8 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/values.dart';
 import '../main.dart' show cameras;
-import '../main.dart';
-import '../main.dart';
 import '../utils.dart';
 import 'mouth_demo.dart';
 
@@ -74,30 +72,30 @@ class _FaceCaptureState extends State<FaceCapture> {
     ImageRotation rotation =
         rotationIntToImageRotation(_controller.description.sensorOrientation);
 
-    _imageStreamStarted = true;
-    _controller.startImageStream((image) {
-      if (!_detected) {
-        detect(image, _faceDetector.processImage, rotation).then((value) {
-          faces = value;
-          if (faces.length != 1) return;
-          print('face detected');
-          Face detectedFace = faces[0];
-          final box = detectedFace.boundingBox;
-          // TODO : check left condition
-          if (box.left < left &&
-              box.top > top &&
-              box.right < right &&
-              box.bottom < bottom) {
-            print(detectedFace.boundingBox);
-            print('left : $left, top : $top, right : $right, bottom : $bottom');
+    // _imageStreamStarted = true;
+    // _controller.startImageStream((image) {
+    //   if (!_detected) {
+    //     detect(image, _faceDetector.processImage, rotation).then((value) {
+    //       faces = value;
+    //       if (faces.length != 1) return;
+    //       print('face detected');
+    //       Face detectedFace = faces[0];
+    //       final box = detectedFace.boundingBox;
+    //       // TODO : check left condition
+    //       if (box.left < left &&
+    //           box.top > top &&
+    //           box.right < right &&
+    //           box.bottom < bottom) {
+    //         print(detectedFace.boundingBox);
+    //         print('left : $left, top : $top, right : $right, bottom : $bottom');
 
-            setState(() {
-              _detected = true;
-            });
-          }
-        });
-      }
-    });
+    //         setState(() {
+    //           _detected = true;
+    //         });
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   @override
@@ -108,6 +106,20 @@ class _FaceCaptureState extends State<FaceCapture> {
   }
 
   void _captureVideo() async {
+    if (!_detected) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text(
+          "Could not detect any face!\nPlease keep your face within the bounding box.",
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
     _controller.startVideoRecording();
     while (_progress < 1.0) {
       await Future.delayed(Duration(milliseconds: 50), () {
@@ -197,6 +209,7 @@ class _FaceCaptureState extends State<FaceCapture> {
     }
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text("App Name"),
       ),
@@ -232,7 +245,7 @@ class _FaceCaptureState extends State<FaceCapture> {
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return InkWell(
-                          onTap: _detected ? _captureVideo : () {},
+                          onTap: _captureVideo,
                           child: Container(
                             margin: EdgeInsets.only(bottom: 20),
                             width: 75,

@@ -122,6 +122,20 @@ class _MouthCaptureState extends State<MouthCapture> {
   }
 
   void _captureVideo() async {
+    if (!_detected) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text(
+          "Could not detect mouth!\nPlease keep your mouth within the bounding box.",
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
     _controller.startVideoRecording();
     while (_progress < 1.0) {
       await Future.delayed(Duration(milliseconds: 50), () {
@@ -192,6 +206,7 @@ class _MouthCaptureState extends State<MouthCapture> {
     }
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text("App Name"),
       ),
@@ -227,7 +242,7 @@ class _MouthCaptureState extends State<MouthCapture> {
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return InkWell(
-                          onTap: _detected ? _captureVideo : () {},
+                          onTap: _captureVideo,
                           child: Container(
                             margin: EdgeInsets.only(bottom: 20),
                             width: 75,
