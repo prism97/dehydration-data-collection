@@ -16,7 +16,7 @@ class EntryInitial extends StatefulWidget {
 }
 
 class _EntryInitialState extends State<EntryInitial> {
-  bool _loading = false, _moisturizedCheck = false;
+  bool _moisturizedCheck = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final auth = FirebaseAuth.instance;
@@ -28,10 +28,6 @@ class _EntryInitialState extends State<EntryInitial> {
 
   Future<bool> _insertData(bool isHydrated) async {
     if (_formKey.currentState.validate() && _moisturizedCheck) {
-      setState(() {
-        _loading = true;
-      });
-
       try {
         _docRef = await db.collection(DATA_COLLECTION).add({
           'hoursOfSleep': _hoursOfSleep,
@@ -42,9 +38,6 @@ class _EntryInitialState extends State<EntryInitial> {
         });
         return true;
       } catch (ex) {
-        setState(() {
-          _loading = false;
-        });
         _scaffoldKey.currentState.showSnackBar(
           SnackBar(
             content: Text(
@@ -61,9 +54,6 @@ class _EntryInitialState extends State<EntryInitial> {
         return false;
       }
     } else {
-      setState(() {
-        _loading = false;
-      });
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text(
           "Please provide valid data!",

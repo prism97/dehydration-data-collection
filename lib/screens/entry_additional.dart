@@ -23,7 +23,6 @@ class EntryAdditional extends StatefulWidget {
 }
 
 class _EntryAdditionalState extends State<EntryAdditional> {
-  bool _loading = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final auth = FirebaseAuth.instance;
@@ -39,10 +38,6 @@ class _EntryAdditionalState extends State<EntryAdditional> {
 
   _insertData() async {
     if (_formKey.currentState.validate()) {
-      setState(() {
-        _loading = true;
-      });
-
       try {
         Map<String, dynamic> entry = {
           'appearanceLevel': _appearanceLevel,
@@ -65,9 +60,6 @@ class _EntryAdditionalState extends State<EntryAdditional> {
           ),
         );
       } catch (ex) {
-        setState(() {
-          _loading = false;
-        });
         _scaffoldKey.currentState.showSnackBar(SnackBar(
           content: Text(
             ex?.message ?? ex?.toString() ?? "Data Entry Failed!",
@@ -81,9 +73,6 @@ class _EntryAdditionalState extends State<EntryAdditional> {
         ));
       }
     } else {
-      setState(() {
-        _loading = false;
-      });
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text(
           "Please provide valid data!",

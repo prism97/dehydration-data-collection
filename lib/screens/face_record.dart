@@ -11,8 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/values.dart';
 import '../main.dart' show cameras;
-import '../main.dart';
-import '../main.dart';
 import '../utils.dart';
 import 'mouth_demo.dart';
 

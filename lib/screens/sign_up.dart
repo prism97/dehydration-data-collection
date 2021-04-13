@@ -25,7 +25,7 @@ class _SignUpState extends State<SignUp> {
   final _signUpFormKey = GlobalKey<FormState>();
   final _dobController = TextEditingController();
 
-  String _email, _password, _confirmPassword;
+  String _email, _password;
   int _sex;
   DateTime _dateOfBirth;
   double _weight;
@@ -236,11 +236,6 @@ class _SignUpState extends State<SignUp> {
                             : (val.compareTo(_password) == 0
                                 ? null
                                 : 'Passwords don\'t match'),
-                        onChanged: (val) {
-                          setState(() {
-                            _confirmPassword = val;
-                          });
-                        },
                       ),
                     ),
                     BaseFormField(
