@@ -208,7 +208,7 @@ class _MouthCaptureState extends State<MouthCapture> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("App Name"),
+        title: Text("Data Droplet"),
       ),
       body: SafeArea(
         child: Container(

@@ -11,7 +11,7 @@ class TermsAndConditions extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
-        title: Text('App Name'),
+        title: Text('Data Droplet'),
       ),
       body: SafeArea(
         child: Padding(

@@ -211,7 +211,7 @@ class _FaceCaptureState extends State<FaceCapture> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("App Name"),
+        title: Text("Data Droplet"),
       ),
       body: SafeArea(
         child: Container(

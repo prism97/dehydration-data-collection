@@ -86,7 +86,7 @@ class _EntryInitialState extends State<EntryInitial> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
-        title: Text('App Name'),
+        title: Text('Data Droplet'),
       ),
       body: SingleChildScrollView(
         child: Padding(

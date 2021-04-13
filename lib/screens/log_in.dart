@@ -87,7 +87,7 @@ class _LogInState extends State<LogIn> {
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
-        title: Text('App Name'),
+        title: Text('Data Droplet'),
       ),
       body: SingleChildScrollView(
         child: Form(

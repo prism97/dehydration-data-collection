@@ -13,7 +13,7 @@ class FaceDemo extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
-        title: Text('App Name'),
+        title: Text('Data Droplet'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

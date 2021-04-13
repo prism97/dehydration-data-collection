@@ -65,7 +65,7 @@ class Home extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
-        title: Text('App Name'),
+        title: Text('Data Droplet'),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
