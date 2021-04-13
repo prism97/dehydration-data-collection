@@ -1,4 +1,7 @@
+import 'dart:io' show Platform;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info/device_info.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +54,24 @@ class _SignUpState extends State<SignUp> {
           password: _password,
         );
 
+        final deviceInfo = DeviceInfoPlugin();
+        Map<String, String> device = {};
+        if (Platform.isAndroid) {
+          final androidInfo = await deviceInfo.androidInfo;
+          device = {
+            'brand': androidInfo.brand,
+            'model': androidInfo.model,
+            'industrialDesign': androidInfo.device,
+          };
+        } else if (Platform.isIOS) {
+          final iosInfo = await deviceInfo.iosInfo;
+          device = {
+            'brand': 'Apple',
+            'model': iosInfo.model,
+            'industrialDesign': iosInfo.utsname.machine,
+          };
+        }
+
         await db.collection(USERS_COLLECTION).doc(userCreds.user.uid).set({
           'email': _email,
           'sex': _sex,
@@ -63,7 +84,8 @@ class _SignUpState extends State<SignUp> {
             'diabetes': _diabetes,
             'skinDisease': _skinDisease,
             'sleepDisorder': _sleepDisorder,
-          }
+          },
+          'deviceInfo': device
         });
 
         setState(() {
@@ -114,7 +136,7 @@ class _SignUpState extends State<SignUp> {
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
-        title: Text('App Name'),
+        title: Text('Data Droplet'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
