@@ -66,6 +66,8 @@ class Home extends StatelessWidget {
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
         title: Text('Data Droplet'),
+        leading: null,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -126,6 +128,10 @@ class Home extends StatelessWidget {
                   '• Before going to sleep at night',
                   style: TextStyle(fontSize: 16),
                 ),
+                Text(
+                  '• At afternoon',
+                  style: TextStyle(fontSize: 16),
+                ),
               ],
             ),
             FutureBuilder<bool>(
@@ -143,8 +149,26 @@ class Home extends StatelessWidget {
                                   .pushReplacementNamed(EntryInitial.id);
                             },
                           )
-                        : Text(
-                            'Less than 4 hours have passed since your last entry. Please wait a while before providing the next entry!');
+                        : Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Colors.grey.shade700,
+                                size: 30,
+                              ),
+                              SizedBox(width: 20),
+                              Expanded(
+                                child: Text(
+                                  'Less than 4 hours have passed since your last entry. Please wait a while before providing the next entry!',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade800,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                            ],
+                          );
                   }
                   return Container();
                 }),
@@ -167,8 +191,13 @@ class Home extends StatelessWidget {
                           controlsBuilder: (BuildContext context,
                               {onStepContinue, onStepCancel}) {
                             return Text(
-                              'You have ${5 - _currentStep} more entries to go!',
+                              (5 - _currentStep) > 0
+                                  ? 'You have ${5 - _currentStep} more entries to go!'
+                                  : ' ',
                               textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
                             );
                           },
                           steps: [

@@ -27,9 +27,11 @@ class _MouthCaptureState extends State<MouthCapture> {
   final _progressStreamController = StreamController<double>();
   double _progress = 0.0;
   List<Face> faces;
-  bool _detected = false,
-      _recordingStarted = false,
-      _imageStreamStarted = false;
+  bool _recordingStarted = false;
+
+  // --------------------- NOTE: MouthDetector Disabled ---------------------
+  bool _detected = true;
+  bool _imageStreamStarted = false;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final auth = FirebaseAuth.instance;
@@ -169,16 +171,16 @@ class _MouthCaptureState extends State<MouthCapture> {
 
   @override
   Widget build(BuildContext context) {
-    if (_controller.value.isInitialized && !_imageStreamStarted) {
-      _detectFaceFromImageStream(context);
-    }
+    // if (_controller.value.isInitialized && !_imageStreamStarted) {
+    //   _detectFaceFromImageStream(context);
+    // }
 
-    if (_controller.value.isInitialized && _detected && !_recordingStarted) {
-      _controller.stopImageStream().then((value) {
-        _recordingStarted = true;
-        _captureVideo();
-      });
-    }
+    // if (_controller.value.isInitialized && _detected && !_recordingStarted) {
+    //   _controller.stopImageStream().then((value) {
+    //     _recordingStarted = true;
+    //     _captureVideo();
+    //   });
+    // }
 
     if (!_controller.value.isInitialized) {
       return Scaffold(

@@ -1,3 +1,6 @@
+import 'package:data_collection_app/providers/data_id_provider.dart';
+import 'package:provider/provider.dart';
+
 import '../constants/maps.dart';
 import '../constants/values.dart';
 import 'entry_additional.dart';
@@ -21,21 +24,31 @@ class _EntryInitialState extends State<EntryInitial> {
   final _formKey = GlobalKey<FormState>();
   final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
-  DocumentReference _docRef;
+  String _docId;
 
   int _hoursOfSleep, _activityLevel = 1;
   double _currentWeight;
 
   Future<bool> _insertData(bool isHydrated) async {
     if (_formKey.currentState.validate() && _moisturizedCheck) {
+      final prevDocId =
+          Provider.of<DataIdProvider>(context, listen: false).dataId;
+      final entryData = {
+        'hoursOfSleep': _hoursOfSleep,
+        'activityLevel': _activityLevel,
+        'currentWeight': _currentWeight,
+        'isHydrated': isHydrated,
+        'uid': auth.currentUser.uid,
+      };
       try {
-        _docRef = await db.collection(DATA_COLLECTION).add({
-          'hoursOfSleep': _hoursOfSleep,
-          'activityLevel': _activityLevel,
-          'currentWeight': _currentWeight,
-          'isHydrated': isHydrated,
-          'uid': auth.currentUser.uid,
-        });
+        if (prevDocId == null || prevDocId.isEmpty) {
+          final tempDocRef =
+              await db.collection(DATA_COLLECTION).add(entryData);
+          _docId = tempDocRef.id;
+        } else {
+          await db.collection(DATA_COLLECTION).doc(prevDocId).set(entryData);
+          _docId = prevDocId;
+        }
         return true;
       } catch (ex) {
         _scaffoldKey.currentState.showSnackBar(
@@ -87,7 +100,8 @@ class _EntryInitialState extends State<EntryInitial> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 BaseFormField(
-                  label: 'How many hours of sleep have you had today?',
+                  label:
+                      'How many hours of sleep have you had within last 24 hours?',
                   formField: TextFormField(
                     keyboardType: TextInputType.number,
                     validator: (val) => (val == null || val.isEmpty)
@@ -171,11 +185,11 @@ class _EntryInitialState extends State<EntryInitial> {
                         text: 'Yes',
                         onPressed: () async {
                           if (await _insertData(true)) {
-                            Navigator.of(context).pushReplacement(
+                            Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => EntryAdditional(
                                   hydrated: true,
-                                  entryUid: _docRef.id,
+                                  entryUid: _docId,
                                 ),
                               ),
                             );
@@ -192,11 +206,11 @@ class _EntryInitialState extends State<EntryInitial> {
                         color: Colors.redAccent.shade100,
                         onPressed: () async {
                           if (await _insertData(false)) {
-                            Navigator.of(context).pushReplacement(
+                            Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => EntryAdditional(
                                   hydrated: false,
-                                  entryUid: _docRef.id,
+                                  entryUid: _docId,
                                 ),
                               ),
                             );
