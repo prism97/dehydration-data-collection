@@ -45,6 +45,7 @@ dependencies:
   email_validator: ^2.0.1
   shared_preferences: ^2.0.5
   device_info: ^2.0.0
+  video_player: ^2.1.1
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +69,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/videos/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
