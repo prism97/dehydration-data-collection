@@ -79,7 +79,7 @@ class _MouthDemoState extends State<MouthDemo> {
               SizedBox(height: 5),
               Text(
                 '• Keep your lips within the bounding box\n• Open your mouth wide\n• Zoom in as much as possible',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 15),
               ),
               SizedBox(
                 height: 10,

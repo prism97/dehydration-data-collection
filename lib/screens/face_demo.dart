@@ -64,7 +64,7 @@ class _FaceDemoState extends State<FaceDemo> {
               SizedBox(height: 5),
               Text(
                 '• Keep your entire face within the bounding box',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 15),
               ),
               SizedBox(
                 height: 10,

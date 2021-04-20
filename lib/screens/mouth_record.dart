@@ -126,6 +126,44 @@ class _MouthCaptureState extends State<MouthCapture> {
     super.dispose();
   }
 
+  void _onCameraFlip() async {
+    if (_controller != null) {
+      await _controller.dispose();
+    }
+    CameraLensDirection newLensDirection =
+        _controller.description.lensDirection == CameraLensDirection.front
+            ? CameraLensDirection.back
+            : CameraLensDirection.front;
+
+    final cameraDescription = cameras.firstWhere(
+      (cam) => cam.lensDirection == newLensDirection,
+    );
+
+    final CameraController cameraController = CameraController(
+      cameraDescription,
+      ResolutionPreset.max,
+      enableAudio: false,
+    );
+    _controller = cameraController;
+
+    // If the controller is updated then update the UI.
+    cameraController.addListener(() {
+      if (mounted) setState(() {});
+      if (cameraController.value.hasError) {
+        print("Camera Error!");
+      }
+    });
+
+    try {
+      await cameraController.initialize();
+    } on CameraException catch (e) {
+      print(e);
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   void _captureVideo() async {
     if (mounted)
       setState(() {
@@ -301,31 +339,48 @@ class _MouthCaptureState extends State<MouthCapture> {
                     stream: _progressStreamController.stream,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData || snapshot.data == -1.0) {
-                        return InkWell(
-                          onTap: _detected ? _captureVideo : () {},
-                          child: Container(
-                            margin: EdgeInsets.only(bottom: 20),
-                            width: 75,
-                            height: 75,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(75),
-                              border: Border.all(
-                                width: 5,
-                                color: Colors.white,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Start",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            InkWell(
+                              onTap: _detected ? _captureVideo : () {},
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: 20),
+                                width: 75,
+                                height: 75,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(75),
+                                  border: Border.all(
+                                    width: 5,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Start",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.lightBlue,
+                              ),
+                              child: IconButton(
+                                onPressed: _onCameraFlip,
+                                iconSize: 40,
+                                color: Colors.white,
+                                icon: Icon(Icons.flip_camera_ios_outlined),
+                              ),
+                            ),
+                          ],
                         );
                       } else if (snapshot.hasData && !snapshot.hasError) {
                         if (snapshot.data == 100.0) {

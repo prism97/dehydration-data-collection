@@ -164,7 +164,7 @@ class Home extends StatelessWidget {
                                     fontSize: 16,
                                     color: Colors.grey.shade800,
                                   ),
-                                  textAlign: TextAlign.center,
+                                  textAlign: TextAlign.justify,
                                 ),
                               )
                             ],
@@ -179,7 +179,7 @@ class Home extends StatelessWidget {
                     _currentStep = snapshot.data;
                     return Container(
                       width: MediaQuery.of(context).size.width - 100,
-                      height: 200,
+                      height: MediaQuery.of(context).size.height / 3,
                       child: Theme(
                         data: ThemeData(
                           canvasColor: Theme.of(context).primaryColorLight,
@@ -190,14 +190,29 @@ class Home extends StatelessWidget {
                           physics: NeverScrollableScrollPhysics(),
                           controlsBuilder: (BuildContext context,
                               {onStepContinue, onStepCancel}) {
-                            return Text(
-                              (5 - _currentStep) > 0
-                                  ? 'You have ${5 - _currentStep} more entries to go!'
-                                  : ' ',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 18,
-                              ),
+                            return Column(
+                              children: [
+                                Text(
+                                  (5 - _currentStep) > 0
+                                      ? 'You have ${5 - _currentStep} more entries to go!'
+                                      : ' ',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  'Please note that you need to provide data at least two times a day for one complete entry',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             );
                           },
                           steps: [
