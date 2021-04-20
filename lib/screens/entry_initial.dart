@@ -1,15 +1,14 @@
-import 'package:data_collection_app/providers/data_id_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/maps.dart';
 import '../constants/values.dart';
-import 'entry_additional.dart';
+import '../providers/data_id_provider.dart';
 import '../widgets/base_button.dart';
 import '../widgets/base_form_field.dart';
-import 'package:flutter/material.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'entry_additional.dart';
 
 class EntryInitial extends StatefulWidget {
   static final String id = 'entry_initial';
@@ -19,6 +18,7 @@ class EntryInitial extends StatefulWidget {
 }
 
 class _EntryInitialState extends State<EntryInitial> {
+  bool _loading = false;
   bool _moisturizedCheck = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
@@ -31,6 +31,9 @@ class _EntryInitialState extends State<EntryInitial> {
 
   Future<bool> _insertData(bool isHydrated) async {
     if (_formKey.currentState.validate() && _moisturizedCheck) {
+      setState(() {
+        _loading = true;
+      });
       final prevDocId =
           Provider.of<DataIdProvider>(context, listen: false).dataId;
       final entryData = {
@@ -104,9 +107,14 @@ class _EntryInitialState extends State<EntryInitial> {
                       'How many hours of sleep have you had within last 24 hours?',
                   formField: TextFormField(
                     keyboardType: TextInputType.number,
-                    validator: (val) => (val == null || val.isEmpty)
-                        ? 'This field is required'
-                        : null,
+                    validator: (val) {
+                      if (val == null || val.isEmpty)
+                        return 'This field is required!';
+                      final hrs = int.tryParse(val);
+                      if (hrs == null || hrs < 0 || hrs > 24)
+                        return 'Invalid data!';
+                      return null;
+                    },
                     onChanged: (val) {
                       setState(() {
                         _hoursOfSleep = int.parse(val);
@@ -178,48 +186,56 @@ class _EntryInitialState extends State<EntryInitial> {
                     ),
                   ),
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: BaseButton(
-                        text: 'Yes',
-                        onPressed: () async {
-                          if (await _insertData(true)) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => EntryAdditional(
-                                  hydrated: true,
-                                  entryUid: _docId,
-                                ),
-                              ),
-                            );
-                          }
-                        },
+                _loading
+                    ? LinearProgressIndicator()
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: BaseButton(
+                              text: 'Yes',
+                              onPressed: () async {
+                                if (await _insertData(true)) {
+                                  setState(() {
+                                    _loading = false;
+                                  });
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => EntryAdditional(
+                                        hydrated: true,
+                                        entryUid: _docId,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Expanded(
+                            child: BaseButton(
+                              text: 'No',
+                              color: Colors.redAccent.shade100,
+                              onPressed: () async {
+                                if (await _insertData(false)) {
+                                  setState(() {
+                                    _loading = false;
+                                  });
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => EntryAdditional(
+                                        hydrated: false,
+                                        entryUid: _docId,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Expanded(
-                      child: BaseButton(
-                        text: 'No',
-                        color: Colors.redAccent.shade100,
-                        onPressed: () async {
-                          if (await _insertData(false)) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => EntryAdditional(
-                                  hydrated: false,
-                                  entryUid: _docId,
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

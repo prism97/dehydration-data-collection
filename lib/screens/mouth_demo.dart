@@ -45,7 +45,10 @@ class _MouthDemoState extends State<MouthDemo> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pushReplacementNamed(Home.id);
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                Home.id,
+                (_) => false,
+              );
             },
             child: Text(
               'Skip >>',
@@ -88,7 +91,7 @@ class _MouthDemoState extends State<MouthDemo> {
                       MaterialStateProperty.all<Color>(Colors.white),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => MouthCapture(
                         entryUid: widget.entryUid,

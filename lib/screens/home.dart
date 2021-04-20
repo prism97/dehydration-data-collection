@@ -138,7 +138,8 @@ class Home extends StatelessWidget {
                 future: _checkMinimumTimeInterval(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return snapshot.data
+                    //TODO: Change after Debug
+                    return true
                         ? BaseButton(
                             text: 'PROVIDE NEW DATA',
                             onPressed: () {

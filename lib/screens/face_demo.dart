@@ -76,7 +76,7 @@ class _FaceDemoState extends State<FaceDemo> {
                       MaterialStateProperty.all<Color>(Colors.white),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => FaceCapture(
                         entryUid: widget.entryUid,

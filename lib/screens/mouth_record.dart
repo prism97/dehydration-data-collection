@@ -4,13 +4,13 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+// import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 import '../constants/values.dart';
 import '../main.dart' show cameras;
-import '../utils.dart';
 import 'home.dart';
 
 class MouthCapture extends StatefulWidget {
@@ -24,12 +24,15 @@ class MouthCapture extends StatefulWidget {
 
 class _MouthCaptureState extends State<MouthCapture> {
   CameraController _controller;
-  final _progressStreamController = StreamController<double>();
+  VideoPlayerController _vidPlayercontroller;
+  XFile _vidFile;
+  final _progressStreamController = StreamController<double>.broadcast();
   double _progress = 0.0;
-  List<Face> faces;
   bool _recordingStarted = false;
+  bool _hasCaptured = false;
 
   // --------------------- NOTE: MouthDetector Disabled ---------------------
+  // List<Face> faces;
   bool _detected = true;
   bool _imageStreamStarted = false;
 
@@ -37,9 +40,9 @@ class _MouthCaptureState extends State<MouthCapture> {
   final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
-  final FaceDetector _faceDetector = FirebaseVision.instance.faceDetector(
-    FaceDetectorOptions(enableLandmarks: true),
-  );
+  // final FaceDetector _faceDetector = FirebaseVision.instance.faceDetector(
+  //   FaceDetectorOptions(enableLandmarks: true),
+  // );
 
   @override
   void initState() {
@@ -61,60 +64,60 @@ class _MouthCaptureState extends State<MouthCapture> {
     });
   }
 
-  void _detectFaceFromImageStream(BuildContext context) {
-    final double scale = MediaQuery.of(context).devicePixelRatio;
-    // bounding box dimensions
-    final double left =
-        scale * (MediaQuery.of(context).size.width * (0.25 / 2));
-    final double top = scale * 50;
-    final double right =
-        scale * MediaQuery.of(context).size.width * (0.75 + (0.25 / 2));
-    final double bottom =
-        scale * (50 + MediaQuery.of(context).size.height * 0.55);
+  // void _detectFaceFromImageStream(BuildContext context) {
+  //   final double scale = MediaQuery.of(context).devicePixelRatio;
+  //   // bounding box dimensions
+  //   final double left =
+  //       scale * (MediaQuery.of(context).size.width * (0.25 / 2));
+  //   final double top = scale * 50;
+  //   final double right =
+  //       scale * MediaQuery.of(context).size.width * (0.75 + (0.25 / 2));
+  //   final double bottom =
+  //       scale * (50 + MediaQuery.of(context).size.height * 0.55);
 
-    ImageRotation rotation =
-        rotationIntToImageRotation(_controller.description.sensorOrientation);
+  //   ImageRotation rotation =
+  //       rotationIntToImageRotation(_controller.description.sensorOrientation);
 
-    _imageStreamStarted = true;
-    _controller.startImageStream((image) {
-      if (!_detected) {
-        detect(image, _faceDetector.processImage, rotation).then((value) {
-          faces = value;
-          if (faces.length != 1) return;
-          print('face detected');
-          Face detectedFace = faces[0];
+  //   _imageStreamStarted = true;
+  //   _controller.startImageStream((image) {
+  //     if (!_detected) {
+  //       detect(image, _faceDetector.processImage, rotation).then((value) {
+  //         faces = value;
+  //         if (faces.length != 1) return;
+  //         print('face detected');
+  //         Face detectedFace = faces[0];
 
-          FaceLandmark noseBase =
-              detectedFace.getLandmark(FaceLandmarkType.noseBase);
-          FaceLandmark leftMouth =
-              detectedFace.getLandmark(FaceLandmarkType.leftMouth);
-          FaceLandmark rightMouth =
-              detectedFace.getLandmark(FaceLandmarkType.rightMouth);
-          FaceLandmark bottomMouth =
-              detectedFace.getLandmark(FaceLandmarkType.bottomMouth);
-          if (bottomMouth == null || leftMouth == null || rightMouth == null) {
-            return;
-          } else {
-            print('mouth detected');
-          }
+  //         FaceLandmark noseBase =
+  //             detectedFace.getLandmark(FaceLandmarkType.noseBase);
+  //         FaceLandmark leftMouth =
+  //             detectedFace.getLandmark(FaceLandmarkType.leftMouth);
+  //         FaceLandmark rightMouth =
+  //             detectedFace.getLandmark(FaceLandmarkType.rightMouth);
+  //         FaceLandmark bottomMouth =
+  //             detectedFace.getLandmark(FaceLandmarkType.bottomMouth);
+  //         if (bottomMouth == null || leftMouth == null || rightMouth == null) {
+  //           return;
+  //         } else {
+  //           print('mouth detected');
+  //         }
 
-          double openMouthGap = bottomMouth.position.dy - noseBase.position.dy;
-          if (leftMouth.position.dx > left &&
-              rightMouth.position.dx < right &&
-              bottomMouth.position.dy < bottom &&
-              openMouthGap > 200) {
-            // print('left : $left, top : $top, right : $right, bottom : $bottom');
-            // print(noseBase.position.dy);
-            // print(bottomMouth.position.dy);
+  //         double openMouthGap = bottomMouth.position.dy - noseBase.position.dy;
+  //         if (leftMouth.position.dx > left &&
+  //             rightMouth.position.dx < right &&
+  //             bottomMouth.position.dy < bottom &&
+  //             openMouthGap > 200) {
+  //           // print('left : $left, top : $top, right : $right, bottom : $bottom');
+  //           // print(noseBase.position.dy);
+  //           // print(bottomMouth.position.dy);
 
-            setState(() {
-              _detected = true;
-            });
-          }
-        });
-      }
-    });
-  }
+  //           setState(() {
+  //             _detected = true;
+  //           });
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -124,25 +127,81 @@ class _MouthCaptureState extends State<MouthCapture> {
   }
 
   void _captureVideo() async {
-    _controller.startVideoRecording();
-    while (_progress < 1.0) {
-      await Future.delayed(Duration(milliseconds: 50), () {
-        _progress += 0.005;
-        _progressStreamController.add(_progress);
+    if (mounted)
+      setState(() {
+        _hasCaptured = false;
       });
-    }
+    _progress = 0.0;
 
     try {
-      final vidFile = await _controller.stopVideoRecording();
-
-      final uploadTask = storage
-          .ref()
-          .child('mouth_videos/${vidFile.name}')
-          .putFile(File(vidFile.path));
+      _controller.startVideoRecording();
+      while (_progress < 1.0) {
+        await Future.delayed(Duration(milliseconds: 50), () {
+          _progress += 0.005;
+          _progressStreamController.add(_progress);
+        });
+      }
 
       await Future.delayed(Duration(milliseconds: 100), () {
         _progressStreamController.add(100.0);
       });
+      if (mounted)
+        setState(() {
+          _hasCaptured = true;
+        });
+
+      _vidFile = await _controller.stopVideoRecording();
+
+      if (_vidFile == null) {
+        return;
+      }
+      if (mounted)
+        setState(() {
+          _hasCaptured = true;
+        });
+
+      _vidPlayercontroller = VideoPlayerController.file(File(_vidFile.path));
+
+      _vidPlayercontroller.addListener(() {
+        if (mounted) setState(() {});
+      });
+      _vidPlayercontroller.setLooping(true);
+      _vidPlayercontroller.initialize().then((_) {
+        if (mounted) setState(() {});
+      });
+      _vidPlayercontroller.play();
+    } catch (ex) {
+      _progressStreamController.add(-1.0);
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text(
+          "Video Capture Failed!",
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
+  _recaptureVideo() {
+    _progressStreamController.add(-1.0);
+    _progress = 0.0;
+    if (mounted)
+      setState(() {
+        _hasCaptured = false;
+      });
+  }
+
+  _uploadVideo() async {
+    try {
+      _progressStreamController.add(200);
+      final uploadTask = storage
+          .ref()
+          .child('mouth_videos/${_vidFile.name}')
+          .putFile(File(_vidFile.path));
 
       final uploadTaskSnapshot = await uploadTask;
 
@@ -153,8 +212,12 @@ class _MouthCaptureState extends State<MouthCapture> {
           .doc(widget.entryUid)
           .update({'mouthVideoURL': fileURL});
 
-      Navigator.of(context).pushReplacementNamed(Home.id);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        Home.id,
+        (_) => false,
+      );
     } catch (ex) {
+      _progressStreamController.add(-1.0);
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text(
           "Data Upload Failed!",
@@ -204,11 +267,20 @@ class _MouthCaptureState extends State<MouthCapture> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: CameraPreview(_controller),
-              ),
+              _hasCaptured
+                  ? SizedBox()
+                  : SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: CameraPreview(_controller),
+                    ),
+              _hasCaptured
+                  ? SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: VideoPlayer(_vidPlayercontroller),
+                    )
+                  : SizedBox(),
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -217,17 +289,18 @@ class _MouthCaptureState extends State<MouthCapture> {
                     width: MediaQuery.of(context).size.width * 0.75,
                     height: MediaQuery.of(context).size.height * 0.55,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5.0),
-                      border: Border.all(
-                        width: 5,
-                        color: Colors.red.shade900,
-                      ),
-                    ),
+                        borderRadius: BorderRadius.circular(5.0),
+                        border: Border.all(
+                          width: 5,
+                          color: _hasCaptured
+                              ? Colors.transparent
+                              : Colors.red.shade900,
+                        )),
                   ),
                   StreamBuilder<double>(
                     stream: _progressStreamController.stream,
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
+                      if (!snapshot.hasData || snapshot.data == -1.0) {
                         return InkWell(
                           onTap: _detected ? _captureVideo : () {},
                           child: Container(
@@ -256,27 +329,101 @@ class _MouthCaptureState extends State<MouthCapture> {
                         );
                       } else if (snapshot.hasData && !snapshot.hasError) {
                         if (snapshot.data == 100.0) {
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 20),
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              borderRadius: BorderRadius.circular(75),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Uploading",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              InkWell(
+                                onTap: _recaptureVideo,
+                                child: Container(
+                                  margin: EdgeInsets.only(bottom: 30),
+                                  width: 75,
+                                  height: 75,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(75),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.replay,
+                                        color: Colors.white,
+                                        size: 27,
+                                      ),
+                                      Text(
+                                        "Retake",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
+                              SizedBox(width: 75),
+                              InkWell(
+                                onTap: _uploadVideo,
+                                child: Container(
+                                  margin: EdgeInsets.only(bottom: 30),
+                                  width: 75,
+                                  height: 75,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(75),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.upload_file,
+                                        color: Colors.white,
+                                        size: 27,
+                                      ),
+                                      Text(
+                                        "Upload",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else if (snapshot.data == 200.0) {
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 30),
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  "Uploading",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           );
-                        }
-                        if (snapshot.data >= 1.0) {
+                        } else if (snapshot.data >= 1.0) {
                           return Container(
                             margin: EdgeInsets.only(bottom: 20),
                             width: 75,
