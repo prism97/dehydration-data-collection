@@ -117,7 +117,7 @@ class _EntryInitialState extends State<EntryInitial> {
                     },
                     onChanged: (val) {
                       setState(() {
-                        _hoursOfSleep = int.parse(val);
+                        _hoursOfSleep = int.tryParse(val);
                       });
                     },
                   ),
