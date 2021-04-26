@@ -35,6 +35,7 @@ class _EntryAdditionalState extends State<EntryAdditional> {
       _respirationLevel = 0;
   int _glassCount;
   TimeOfDay _lastFluidIntakeTime;
+  int _todayOrYesterday = 0;
   TextEditingController _controller = TextEditingController();
 
   _insertData() async {
@@ -53,6 +54,19 @@ class _EntryAdditionalState extends State<EntryAdditional> {
           entry['glassCount'] = _glassCount;
         } else {
           entry['lastFluidIntakeTime'] = _lastFluidIntakeTime.format(context);
+
+          int hour = _lastFluidIntakeTime.hour;
+          int minute = _lastFluidIntakeTime.minute;
+          DateTime temp;
+          if (_todayOrYesterday == 0) {
+            temp = DateTime.now();
+          } else {
+            temp = DateTime.now().subtract(Duration(days: 1));
+          }
+          DateTime fluidIntakeDateTime =
+              DateTime(temp.year, temp.month, temp.day, hour, minute);
+          int hours = DateTime.now().difference(fluidIntakeDateTime).inHours;
+          entry['hoursAfterLastFluidIntake'] = hours;
         }
         await db.collection(DATA_COLLECTION).doc(widget.entryUid).update(entry);
 
@@ -251,21 +265,42 @@ class _EntryAdditionalState extends State<EntryAdditional> {
                       )
                     : BaseFormField(
                         label: 'Last time of fluid intake',
-                        formField: TextFormField(
-                          readOnly: true,
-                          controller: _controller,
-                          validator: (val) => (_controller.text == null ||
-                                  _controller.text.isEmpty)
-                              ? 'This field is required'
-                              : null,
-                          onTap: () async {
-                            _lastFluidIntakeTime = await showTimePicker(
-                              context: context,
-                              initialTime: TimeOfDay.now(),
-                            );
-                            _controller.text =
-                                _lastFluidIntakeTime.format(context);
-                          },
+                        formField: Column(
+                          children: [
+                            DropdownButtonFormField(
+                              value: _todayOrYesterday,
+                              items: [
+                                DropdownMenuItem<int>(
+                                    value: 0, child: Text('Today')),
+                                DropdownMenuItem<int>(
+                                    value: 1, child: Text('Yesterday')),
+                              ],
+                              onChanged: (val) {
+                                setState(() {
+                                  _todayOrYesterday = val;
+                                });
+                              },
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                              readOnly: true,
+                              controller: _controller,
+                              validator: (val) => (_controller.text == null ||
+                                      _controller.text.isEmpty)
+                                  ? 'This field is required'
+                                  : null,
+                              onTap: () async {
+                                _lastFluidIntakeTime = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.now(),
+                                );
+                                _controller.text =
+                                    _lastFluidIntakeTime.format(context);
+                              },
+                            ),
+                          ],
                         ),
                       ),
                 _loading

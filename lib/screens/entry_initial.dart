@@ -168,6 +168,10 @@ class _EntryInitialState extends State<EntryInitial> {
                       'I have not applied any moisturizer to my face in the last 6 hours',
                       style: TextStyle(fontSize: 16),
                     ),
+                    subtitle: Text(
+                      '* Required condition',
+                      style: TextStyle(color: Colors.red),
+                    ),
                     onChanged: (val) {
                       setState(() {
                         _moisturizedCheck = val;
