@@ -128,6 +128,66 @@ class _LogInState extends State<LogIn> {
                     },
                   ),
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Card(
+                            margin: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: MediaQuery.of(context).size.height / 3,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Enter your e-mail address'),
+                                  TextFormField(
+                                    decoration: InputDecoration(
+                                      fillColor:
+                                          Theme.of(context).primaryColorLight,
+                                    ),
+                                    keyboardType: TextInputType.emailAddress,
+                                    validator: (val) =>
+                                        EmailValidator.validate(val)
+                                            ? null
+                                            : 'Invalid e-mail address',
+                                    onChanged: (val) {
+                                      setState(() {
+                                        _email = val;
+                                      });
+                                    },
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      await FirebaseAuth.instance
+                                          .sendPasswordResetEmail(
+                                              email: _email);
+                                      setState(() {
+                                        _email = null;
+                                      });
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Reset Password'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Forgot password?',
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: 20),
                 _loading
                     ? LinearProgressIndicator()
