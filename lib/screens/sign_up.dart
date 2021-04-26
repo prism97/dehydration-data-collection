@@ -144,6 +144,7 @@ class _SignUpState extends State<SignUp> {
             onTap: () => FocusScope.of(context).unfocus(),
             child: Form(
               key: _signUpFormKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
