@@ -41,6 +41,7 @@ class _EntryInitialState extends State<EntryInitial> {
         'activityLevel': _activityLevel,
         'currentWeight': _currentWeight,
         'isHydrated': isHydrated,
+        'createdAt': DateTime.now().toIso8601String(),
         'uid': auth.currentUser.uid,
       };
       try {
