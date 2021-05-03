@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:data_collection_app/screens/face_demo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,11 @@ class _EntryInitialState extends State<EntryInitial> {
 
   int _hoursOfSleep, _activityLevel = 1;
   double _currentWeight;
+  bool _hydrated;
+  int _glassCount;
+  TimeOfDay _lastFluidIntakeTime;
+  int _todayOrYesterday = 0;
+  TextEditingController _controller = TextEditingController();
 
   Future<bool> _insertData(bool isHydrated) async {
     if (_formKey.currentState.validate() && _moisturizedCheck) {
@@ -44,6 +50,24 @@ class _EntryInitialState extends State<EntryInitial> {
         'createdAt': DateTime.now().toIso8601String(),
         'uid': auth.currentUser.uid,
       };
+      if (isHydrated) {
+        entryData['glassCount'] = _glassCount;
+      } else {
+        entryData['lastFluidIntakeTime'] = _lastFluidIntakeTime.format(context);
+
+        int hour = _lastFluidIntakeTime.hour;
+        int minute = _lastFluidIntakeTime.minute;
+        DateTime temp;
+        if (_todayOrYesterday == 0) {
+          temp = DateTime.now();
+        } else {
+          temp = DateTime.now().subtract(Duration(days: 1));
+        }
+        DateTime fluidIntakeDateTime =
+            DateTime(temp.year, temp.month, temp.day, hour, minute);
+        int hours = DateTime.now().difference(fluidIntakeDateTime).inHours;
+        entryData['hoursAfterLastFluidIntake'] = hours;
+      }
       try {
         if (prevDocId == null || prevDocId.isEmpty) {
           final tempDocRef =
@@ -124,7 +148,8 @@ class _EntryInitialState extends State<EntryInitial> {
                   ),
                 ),
                 BaseFormField(
-                  label: 'What is your weight now? (in kilograms)',
+                  label:
+                      'What is your weight (in kilograms) right now? [optional]',
                   formField: TextFormField(
                     keyboardType: TextInputType.number,
                     onChanged: (val) {
@@ -180,38 +205,38 @@ class _EntryInitialState extends State<EntryInitial> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Text(
-                    'Are you hydrated now?',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                _loading
-                    ? LinearProgressIndicator()
+                _hydrated != null
+                    ? Container()
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Text(
+                          'Are you hydrated now?',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                _hydrated != null
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: BaseButton(
+                          text:
+                              _hydrated ? 'Hydrated Entry' : 'Dehydrated Entry',
+                          color: Colors.purple.shade300,
+                          onPressed: () {},
+                        ),
+                      )
                     : Row(
                         children: [
                           Expanded(
                             child: BaseButton(
                               text: 'Yes',
-                              onPressed: () async {
-                                if (await _insertData(true)) {
-                                  setState(() {
-                                    _loading = false;
-                                  });
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => EntryAdditional(
-                                        hydrated: true,
-                                        entryUid: _docId,
-                                      ),
-                                    ),
-                                  );
-                                }
+                              onPressed: () {
+                                setState(() {
+                                  _hydrated = true;
+                                });
                               },
                             ),
                           ),
@@ -222,25 +247,96 @@ class _EntryInitialState extends State<EntryInitial> {
                             child: BaseButton(
                               text: 'No',
                               color: Colors.redAccent.shade100,
-                              onPressed: () async {
-                                if (await _insertData(false)) {
-                                  setState(() {
-                                    _loading = false;
-                                  });
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => EntryAdditional(
-                                        hydrated: false,
-                                        entryUid: _docId,
-                                      ),
-                                    ),
-                                  );
-                                }
+                              onPressed: () {
+                                setState(() {
+                                  _hydrated = false;
+                                });
                               },
                             ),
                           ),
                         ],
                       ),
+                _hydrated == null
+                    ? Container()
+                    : _hydrated
+                        ? BaseFormField(
+                            label:
+                                'How many glasses of fluid did you take in the last 4 hours?',
+                            formField: TextFormField(
+                              keyboardType: TextInputType.number,
+                              validator: (val) => (val == null || val.isEmpty)
+                                  ? 'This field is required'
+                                  : null,
+                              onChanged: (val) {
+                                setState(() {
+                                  _glassCount = int.tryParse(val);
+                                });
+                              },
+                            ),
+                          )
+                        : BaseFormField(
+                            label: 'Last time of fluid intake',
+                            formField: Column(
+                              children: [
+                                DropdownButtonFormField(
+                                  value: _todayOrYesterday,
+                                  items: [
+                                    DropdownMenuItem<int>(
+                                        value: 0, child: Text('Today')),
+                                    DropdownMenuItem<int>(
+                                        value: 1, child: Text('Yesterday')),
+                                  ],
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _todayOrYesterday = val;
+                                    });
+                                  },
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                TextFormField(
+                                  readOnly: true,
+                                  controller: _controller,
+                                  validator: (val) =>
+                                      (_controller.text == null ||
+                                              _controller.text.isEmpty)
+                                          ? 'This field is required'
+                                          : null,
+                                  onTap: () async {
+                                    _lastFluidIntakeTime = await showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay.now(),
+                                    );
+                                    _controller.text =
+                                        _lastFluidIntakeTime.format(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                _hydrated == null
+                    ? Container()
+                    : _loading
+                        ? LinearProgressIndicator()
+                        : BaseButton(
+                            text: 'NEXT',
+                            onPressed: () async {
+                              setState(() {
+                                _loading = true;
+                              });
+                              if (await _insertData(_hydrated)) {
+                                setState(() {
+                                  _loading = false;
+                                });
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          FaceDemo(entryUid: _docId)),
+                                );
+                              }
+                            },
+                          ),
               ],
             ),
           ),
