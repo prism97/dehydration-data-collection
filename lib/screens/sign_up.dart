@@ -23,11 +23,10 @@ class _SignUpState extends State<SignUp> {
   bool _loading = false;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _signUpFormKey = GlobalKey<FormState>();
-  final _dobController = TextEditingController();
 
   String _email, _password;
   int _sex;
-  DateTime _dateOfBirth;
+  int _age;
   double _weight;
   // diseases
   bool _malnutrition = false,
@@ -75,7 +74,7 @@ class _SignUpState extends State<SignUp> {
         await db.collection(USERS_COLLECTION).doc(userCreds.user.uid).set({
           'email': _email,
           'sex': _sex,
-          'dateOfBirth': Timestamp.fromDate(_dateOfBirth),
+          'age': _age,
           'weight': _weight,
           'diseases': {
             'malnutrition': _malnutrition,
@@ -186,28 +185,18 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     BaseFormField(
-                      label: 'Date of Birth',
+                      label: 'Age',
                       formField: TextFormField(
-                        controller: _dobController,
-                        readOnly: true,
+                        keyboardType: TextInputType.number,
                         validator: (val) => (val == null || val.isEmpty)
                             ? 'This field is required'
-                            : null,
-                        onTap: () async {
-                          final dob = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime(1990),
-                            firstDate: DateTime(1901),
-                            lastDate: DateTime.now(),
-                          );
-
+                            : ((int.tryParse(val) == null ||
+                                    int.tryParse(val) < 0)
+                                ? 'Age must be a positive, non-decimal number'
+                                : null),
+                        onChanged: (val) {
                           setState(() {
-                            _dateOfBirth = dob;
-                            _dobController.text = dob
-                                .toLocal()
-                                .toString()
-                                .split(" ")[0]
-                                .replaceAll("-", "/");
+                            _age = int.tryParse(val);
                           });
                         },
                       ),
