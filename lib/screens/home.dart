@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,6 +14,18 @@ import 'log_in.dart';
 class Home extends StatelessWidget {
   static final String id = 'home';
   final auth = FirebaseAuth.instance;
+
+  final preferredTimes = [
+    'At noon',
+    'Before iftaar',
+    'Before going to sleep at night',
+  ];
+
+  final steps = [
+    'Provide some basic information about your current condition',
+    'Record your face for 5 seconds',
+    'Take a picture of your mouth, keeping it open',
+  ];
 
   // returns true if a new entry can be taken
   Future<bool> _checkMinimumTimeInterval() async {
@@ -110,27 +125,56 @@ class Home extends StatelessWidget {
               ],
             ),
             Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Preferred times for data entry',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
+                _buildPreferredTimesBox(),
+                SizedBox(
+                  height: 8,
+                ),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all(
+                      EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    backgroundColor: MaterialStateProperty.all(Colors.white),
+                    foregroundColor: MaterialStateProperty.all(Colors.blue),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  '• Before iftar',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Text(
-                  '• Before going to sleep at night',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Text(
-                  '• At afternoon',
-                  style: TextStyle(fontSize: 16),
+                  onPressed: () {
+                    showGeneralDialog(
+                      barrierDismissible: true,
+                      barrierLabel: 'Close',
+                      context: context,
+                      pageBuilder: (context, a, b) {
+                        return Card(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: MediaQuery.of(context).size.height / 3,
+                          ),
+                          child: _buildSteps(),
+                        );
+                      },
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.info),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Text(
+                        'VIEW STEPS',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -177,54 +221,35 @@ class Home extends StatelessWidget {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     _currentStep = snapshot.data;
-                    return Container(
-                      width: MediaQuery.of(context).size.width - 100,
-                      height: MediaQuery.of(context).size.height / 3,
-                      child: Theme(
-                        data: ThemeData(
-                          canvasColor: Theme.of(context).primaryColorLight,
-                          shadowColor: Colors.transparent,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          // (5 - _currentStep) > 0
+                          //     ? 'You have ${5 - _currentStep} more entries to go!'
+                          //     : ' ',
+                          // TODO: fetch from shared resources
+                          'Entries in hydrated state : 0\nEntries in dehydrated state : 0',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                        child: Stepper(
-                          type: StepperType.horizontal,
-                          physics: NeverScrollableScrollPhysics(),
-                          controlsBuilder: (BuildContext context,
-                              {onStepContinue, onStepCancel}) {
-                            return Column(
-                              children: [
-                                Text(
-                                  (5 - _currentStep) > 0
-                                      ? 'You have ${5 - _currentStep} more entries to go!'
-                                      : ' ',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  'Please note that you need to provide data at least two times a day for one complete entry',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                          steps: [
-                            _buildStep(_currentStep, 1),
-                            _buildStep(_currentStep, 2),
-                            _buildStep(_currentStep, 3),
-                            _buildStep(_currentStep, 4),
-                            _buildStep(_currentStep, 5),
-                          ],
-                          currentStep: _currentStep,
+                        SizedBox(
+                          height: 5,
                         ),
-                      ),
+                        Text(
+                          'Please provide at least one entry in hydrated state and at least two entries in dehydrated state.',
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 32,
+                        ),
+                      ],
                     );
                   }
                   return Container(
@@ -238,12 +263,96 @@ class Home extends StatelessWidget {
     );
   }
 
-  Step _buildStep(int currentStep, int stepIndex) {
-    return Step(
-      title: Text(''),
-      content: Text(''),
-      isActive: currentStep >= 0,
-      state: currentStep >= stepIndex ? StepState.complete : StepState.disabled,
+  Container _buildPreferredTimesBox() {
+    return Container(
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.blueAccent,
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Preferred times for data entry during Ramadan',
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+            ),
+          ),
+          SizedBox(height: 5),
+          Wrap(
+            spacing: 10,
+            children: preferredTimes
+                .map(
+                  (time) => Chip(
+                    backgroundColor: Colors.blueAccent,
+                    label: Text(
+                      time,
+                      style: TextStyle(
+                        // fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSteps() {
+    return ListView.separated(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+      itemBuilder: (context, index) {
+        return Row(
+          children: [
+            Container(
+              height: 32,
+              width: 32,
+              margin: EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  (index + 1).toString(),
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                steps[index],
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        );
+      },
+      separatorBuilder: (context, index) {
+        return SizedBox(
+          height: 32,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: VerticalDivider(
+              color: Colors.blue,
+              thickness: 5,
+              width: 32,
+              indent: 5,
+              endIndent: 5,
+            ),
+          ),
+        );
+      },
+      itemCount: steps.length,
     );
   }
 }
