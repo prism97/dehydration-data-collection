@@ -182,37 +182,60 @@ class Home extends StatelessWidget {
                 future: _checkMinimumTimeInterval(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return snapshot.data
-                        ? BaseButton(
-                            text: 'PROVIDE NEW DATA',
-                            onPressed: () {
-                              Provider.of<DataIdProvider>(context,
-                                      listen: false)
-                                  .dataId = "";
-                              Navigator.of(context)
-                                  .pushReplacementNamed(EntryInitial.id);
-                            },
-                          )
-                        : Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: Colors.grey.shade700,
-                                size: 30,
-                              ),
-                              SizedBox(width: 20),
-                              Expanded(
-                                child: Text(
-                                  'Less than 4 hours have passed since your last entry. Please wait a while before providing the next entry!',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey.shade800,
-                                  ),
-                                  textAlign: TextAlign.justify,
+                    return BaseButton(
+                      text: 'PROVIDE NEW DATA',
+                      onPressed: () {
+                        if (snapshot.data) {
+                          Provider.of<DataIdProvider>(context, listen: false)
+                              .dataId = "";
+                          Navigator.of(context)
+                              .pushReplacementNamed(EntryInitial.id);
+                        } else {
+                          showGeneralDialog(
+                            barrierDismissible: true,
+                            barrierLabel: 'Close',
+                            context: context,
+                            pageBuilder: (context, a, b) {
+                              return Card(
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical:
+                                      MediaQuery.of(context).size.height / 3,
                                 ),
-                              )
-                            ],
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        color: Colors.purple.shade300,
+                                        size: 40,
+                                      ),
+                                      SizedBox(height: 16),
+                                      Expanded(
+                                        child: Text(
+                                          'Less than 4 hours have passed since your last entry. Please wait a while before providing the next entry!',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                          ),
+                                          textAlign: TextAlign.justify,
+                                        ),
+                                      ),
+                                      BaseButton(
+                                        text: 'OK',
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           );
+                        }
+                      },
+                    );
                   }
                   return Container();
                 }),
