@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:data_collection_app/screens/thank_you.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
           LogIn.id: (context) => LogIn(),
           Home.id: (context) => Home(),
           EntryInitial.id: (context) => EntryInitial(),
+          ThankYou.id: (context) => ThankYou(),
         },
         initialRoute: FirebaseAuth.instance != null &&
                 FirebaseAuth.instance.currentUser != null
