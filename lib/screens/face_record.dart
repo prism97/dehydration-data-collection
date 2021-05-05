@@ -53,7 +53,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
     );
     _controller = CameraController(
       frontCamera ?? cameras.last,
-      ResolutionPreset.max,
+      ResolutionPreset.high,
       enableAudio: false,
     );
     _controller.initialize().then((_) {
