@@ -31,6 +31,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
   double _progress = 0.0;
   bool _recordingStarted = false;
   bool _hasCaptured = false;
+  bool _playingPreview = false;
 
   // --------------------- NOTE: FaceDetector Disabled ---------------------
   // List<Face> faces;
@@ -52,7 +53,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
     );
     _controller = CameraController(
       frontCamera ?? cameras.last,
-      ResolutionPreset.max,
+      ResolutionPreset.high,
       enableAudio: false,
     );
     _controller.initialize().then((_) {
@@ -191,7 +192,6 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
       _vidPlayercontroller.initialize().then((_) {
         if (mounted) setState(() {});
       });
-      _vidPlayercontroller.play();
     } catch (ex) {
       _progressStreamController.add(-1.0);
       _scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -217,7 +217,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
       });
   }
 
-  _uploadVideo() async {
+  _uploadVideo(BuildContext context) async {
     try {
       _progressStreamController.add(200);
       final uploadTask = storage
@@ -234,7 +234,11 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
           .doc(widget.entryUid)
           .update({'faceVideoURL': fileURL});
 
+      _progressStreamController.add(1);
+
       await _addEntryToSharedPreferences();
+
+      await Future.delayed(Duration(milliseconds: 500));
 
       Navigator.of(context)
           .push(
@@ -254,7 +258,10 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
       });
     } catch (ex) {
       _progressStreamController.add(-1.0);
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
+      setState(() {
+        _hasCaptured = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
           "Data Upload Failed!",
           style: TextStyle(
@@ -265,6 +272,24 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
         ),
         backgroundColor: Colors.red,
       ));
+    }
+  }
+
+  void _playPreview() {
+    if (mounted && !_playingPreview) {
+      setState(() {
+        _playingPreview = true;
+      });
+      _vidPlayercontroller.play();
+    }
+  }
+
+  void _pausePreview() {
+    if (mounted && _playingPreview) {
+      _vidPlayercontroller.pause();
+      setState(() {
+        _playingPreview = false;
+      });
     }
   }
 
@@ -322,10 +347,37 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
                       child: CameraPreview(_controller),
                     ),
               _hasCaptured
-                  ? SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      child: VideoPlayer(_vidPlayercontroller),
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          color: Theme.of(context).primaryColor,
+                          child: Text(
+                            'Preview',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Theme.of(context).primaryColor,
+                              width: 3,
+                            ),
+                          ),
+                          child: VideoPlayer(_vidPlayercontroller),
+                        ),
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.15),
+                      ],
                     )
                   : SizedBox(),
               Column(
@@ -394,7 +446,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
                       } else if (snapshot.hasData && !snapshot.hasError) {
                         if (snapshot.data == 100.0) {
                           return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               InkWell(
                                 onTap: _recaptureVideo,
@@ -426,9 +478,45 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 75),
                               InkWell(
-                                onTap: _uploadVideo,
+                                onTap: _playingPreview
+                                    ? _pausePreview
+                                    : _playPreview,
+                                child: Container(
+                                  margin: EdgeInsets.only(bottom: 30),
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        _playingPreview
+                                            ? Icons.pause_circle_filled
+                                            : Icons.play_circle_filled_outlined,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                      Text(
+                                        _playingPreview ? "Pause" : "Preview",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  _uploadVideo(context);
+                                },
                                 child: Container(
                                   margin: EdgeInsets.only(bottom: 30),
                                   width: 75,
