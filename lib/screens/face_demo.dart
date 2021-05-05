@@ -46,6 +46,7 @@ class _FaceDemoState extends State<FaceDemo> {
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 color: Colors.grey,
