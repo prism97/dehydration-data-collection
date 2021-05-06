@@ -15,9 +15,10 @@ import '../main.dart' show cameras;
 import 'mouth_demo.dart';
 
 class FaceCapture extends StatefulWidget {
-  FaceCapture({Key key, this.entryUid}) : super(key: key);
+  FaceCapture({Key key, this.entryUid, this.hydrated}) : super(key: key);
 
   final String entryUid;
+  final bool hydrated;
 
   @override
   _FaceCaptureState createState() => _FaceCaptureState();
@@ -296,12 +297,16 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
   Future<void> _addEntryToSharedPreferences() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String currentUserId = FirebaseAuth.instance.currentUser.uid;
-    List<String> timestampStrings = [];
-    if (sharedPreferences.containsKey(currentUserId)) {
-      timestampStrings.addAll(sharedPreferences.getStringList(currentUserId));
-    }
-    timestampStrings.add(DateTime.now().toIso8601String());
-    sharedPreferences.setStringList(currentUserId, timestampStrings);
+
+    await sharedPreferences.setString(
+        currentUserId + "_timestamp", DateTime.now().toIso8601String());
+
+    String str = widget.hydrated
+        ? (currentUserId + "_hydrated")
+        : (currentUserId + "_dehydrated");
+
+    int count = sharedPreferences.get(str) ?? 0;
+    sharedPreferences.setInt(str, count + 1);
   }
 
   @override

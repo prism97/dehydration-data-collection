@@ -32,9 +32,9 @@ class Home extends StatelessWidget {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String currentUserId = FirebaseAuth.instance.currentUser.uid;
 
-    if (sharedPreferences.containsKey(currentUserId)) {
-      String timestampString =
-          sharedPreferences.getStringList(currentUserId).last;
+    String key = currentUserId + "_timestamp";
+    if (sharedPreferences.containsKey(key)) {
+      String timestampString = sharedPreferences.getString(key);
       DateTime lastEntryTime = DateTime.parse(timestampString);
       if (DateTime.now().difference(lastEntryTime).inHours >= 4) {
         return true;
@@ -46,37 +46,21 @@ class Home extends StatelessWidget {
     }
   }
 
-  Future<int> _getCurrentStepFromLocalStorage() async {
+  Future<Map<String, int>> _getEntryCountFromLocalStorage() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String currentUserId = FirebaseAuth.instance.currentUser.uid;
 
-    if (sharedPreferences.containsKey(currentUserId)) {
-      int currentStep = 0;
-      List<String> timestampStrings =
-          sharedPreferences.getStringList(currentUserId);
-
-      String currentDay = timestampStrings.first;
-      int currentDayEntryCount = 0;
-      timestampStrings.forEach((str) {
-        if (currentDay.substring(0, 10).compareTo(str.substring(0, 10)) == 0) {
-          currentDayEntryCount++;
-        } else {
-          if (currentDayEntryCount >= 2) currentStep++;
-          currentDayEntryCount = 1;
-          currentDay = str;
-        }
-      });
-      if (currentDayEntryCount >= 2) currentStep++;
-      return (currentStep > 5) ? 5 : currentStep;
-    } else {
-      return 0;
-    }
+    int hydrated = sharedPreferences.getInt(currentUserId + "_hydrated") ?? 0;
+    int dehydrated =
+        sharedPreferences.getInt(currentUserId + "_dehydrated") ?? 0;
+    return {
+      "hydrated": hydrated,
+      "dehydrated": dehydrated,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    int _currentStep;
-
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColorLight,
       appBar: AppBar(
@@ -239,20 +223,17 @@ class Home extends StatelessWidget {
                   }
                   return Container();
                 }),
-            FutureBuilder<int>(
-                future: _getCurrentStepFromLocalStorage(),
+            FutureBuilder<Map<String, int>>(
+                future: _getEntryCountFromLocalStorage(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    _currentStep = snapshot.data;
+                    int hydrated = snapshot.data['hydrated'];
+                    int dehydrated = snapshot.data['dehydrated'];
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          // (5 - _currentStep) > 0
-                          //     ? 'You have ${5 - _currentStep} more entries to go!'
-                          //     : ' ',
-                          // TODO: fetch from shared resources
-                          'Entries in hydrated state : 0\nEntries in dehydrated state : 0',
+                          'Entries in hydrated state : $hydrated\nEntries in dehydrated state : $dehydrated',
                           textAlign: TextAlign.start,
                           style: TextStyle(
                             fontSize: 16,

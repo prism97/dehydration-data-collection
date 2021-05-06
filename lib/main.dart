@@ -10,7 +10,6 @@ import 'screens/entry_initial.dart';
 import 'screens/home.dart';
 import 'screens/log_in.dart';
 import 'screens/sign_up.dart';
-import 'screens/term_and_conditions.dart';
 
 List<CameraDescription> cameras;
 
@@ -50,7 +49,6 @@ class MyApp extends StatelessWidget {
           ),
         ),
         routes: {
-          TermsAndConditions.id: (context) => TermsAndConditions(),
           SignUp.id: (context) => SignUp(),
           LogIn.id: (context) => LogIn(),
           Home.id: (context) => Home(),

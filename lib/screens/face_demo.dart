@@ -6,8 +6,10 @@ import 'face_record.dart';
 class FaceDemo extends StatefulWidget {
   static final String id = 'face_demo';
   final String entryUid;
+  final bool hydrated;
 
-  const FaceDemo({Key key, @required this.entryUid}) : super(key: key);
+  const FaceDemo({Key key, @required this.entryUid, @required this.hydrated})
+      : super(key: key);
 
   @override
   _FaceDemoState createState() => _FaceDemoState();
@@ -81,6 +83,7 @@ class _FaceDemoState extends State<FaceDemo> {
                     MaterialPageRoute(
                       builder: (context) => FaceCapture(
                         entryUid: widget.entryUid,
+                        hydrated: widget.hydrated,
                       ),
                     ),
                   );

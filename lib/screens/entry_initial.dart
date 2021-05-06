@@ -9,7 +9,6 @@ import '../constants/values.dart';
 import '../providers/data_id_provider.dart';
 import '../widgets/base_button.dart';
 import '../widgets/base_form_field.dart';
-import 'entry_additional.dart';
 
 class EntryInitial extends StatefulWidget {
   static final String id = 'entry_initial';
@@ -331,8 +330,11 @@ class _EntryInitialState extends State<EntryInitial> {
                                 });
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          FaceDemo(entryUid: _docId)),
+                                    builder: (context) => FaceDemo(
+                                      entryUid: _docId,
+                                      hydrated: _hydrated,
+                                    ),
+                                  ),
                                 );
                               }
                             },
