@@ -36,6 +36,8 @@ class _SignUpState extends State<SignUp> {
       _skinDisease = false,
       _sleepDisorder = false;
 
+  bool _agreed = false;
+
   _registerUser() async {
     FocusScope.of(context).unfocus();
 
@@ -43,7 +45,7 @@ class _SignUpState extends State<SignUp> {
       _loading = true;
     });
 
-    if (_signUpFormKey.currentState.validate()) {
+    if (_signUpFormKey.currentState.validate() && _agreed) {
       final auth = FirebaseAuth.instance;
       final db = FirebaseFirestore.instance;
 
@@ -243,6 +245,27 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     _buildDiseaseCheckboxes(),
+                    _agreed
+                        ? Container()
+                        : Text(
+                            '*Required',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: _agreed,
+                      title: Text(
+                        'I understand that the data I provide will be used for the purpose of this research only.',
+                      ),
+                      onChanged: (val) {
+                        setState(() {
+                          _agreed = val;
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
                     _loading
                         ? SizedBox(
                             width: 50,
