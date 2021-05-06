@@ -121,10 +121,6 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
       await Future.delayed(Duration(milliseconds: 100), () {
         _progressStreamController.add(100.0);
       });
-      if (mounted)
-        setState(() {
-          _hasCaptured = true;
-        });
 
       _vidFile = await _controller.stopVideoRecording();
 
@@ -164,6 +160,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
   _recaptureVideo() {
     _progressStreamController.add(-1.0);
     _progress = 0.0;
+    File(_vidFile.path).deleteSync();
     if (mounted)
       setState(() {
         _hasCaptured = false;
@@ -191,6 +188,8 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
       _progressStreamController.add(1);
 
       await _addEntryToSharedPreferences();
+
+      File(_vidFile.path).deleteSync();
 
       await Future.delayed(Duration(milliseconds: 500));
 

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -120,6 +121,7 @@ class _MouthCaptureState extends State<MouthCapture> {
   }
 
   _recapturePhoto() {
+    File(_imgFile.path).deleteSync();
     if (mounted)
       setState(() {
         _hasCaptured = false;
@@ -144,6 +146,8 @@ class _MouthCaptureState extends State<MouthCapture> {
           .collection(DATA_COLLECTION)
           .doc(widget.entryUid)
           .update({'mouthImageURL': fileURL});
+
+      File(_imgFile.path).deleteSync();
 
       Navigator.of(context)
           .pushNamedAndRemoveUntil(
@@ -232,7 +236,16 @@ class _MouthCaptureState extends State<MouthCapture> {
                               width: 3,
                             ),
                           ),
-                          child: Image.file(File(_imgFile.path)),
+                          child: FutureBuilder<Uint8List>(
+                            future: _imgFile.readAsBytes(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return Image.memory(snapshot.data);
+                              }
+                              return CircularProgressIndicator(
+                                  color: Colors.white);
+                            },
+                          ),
                         ),
                         SizedBox(
                             height: MediaQuery.of(context).size.height * 0.15),
