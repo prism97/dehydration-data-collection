@@ -23,7 +23,7 @@ class ThankYou extends StatelessWidget {
             color: Colors.purple.shade300,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               'Your data was uploaded successfully. Thank you so much for taking the time to provide your valuable data!',
               textAlign: TextAlign.center,
