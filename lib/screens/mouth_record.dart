@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:data_collection_app/screens/thank_you.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -251,7 +252,7 @@ class _MouthCaptureState extends State<MouthCapture> {
           .update({'mouthVideoURL': fileURL});
 
       Navigator.of(context).pushNamedAndRemoveUntil(
-        Home.id,
+        ThankYou.id,
         (_) => false,
       );
     } catch (ex) {

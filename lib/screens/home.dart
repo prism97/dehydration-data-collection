@@ -152,7 +152,7 @@ class Home extends StatelessWidget {
                         return Card(
                           margin: EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: MediaQuery.of(context).size.height / 3,
+                            vertical: MediaQuery.of(context).size.height / 4,
                           ),
                           child: _buildSteps(),
                         );

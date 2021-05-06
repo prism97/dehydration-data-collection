@@ -1,3 +1,4 @@
+import 'package:data_collection_app/screens/thank_you.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -46,7 +47,7 @@ class _MouthDemoState extends State<MouthDemo> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pushNamedAndRemoveUntil(
-                Home.id,
+                ThankYou.id,
                 (_) => false,
               );
             },

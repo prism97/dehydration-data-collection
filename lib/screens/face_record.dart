@@ -35,8 +35,8 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
 
   // --------------------- NOTE: FaceDetector Disabled ---------------------
   // List<Face> faces;
-  bool _detected = true;
-  bool _imageStreamStarted = false;
+  // bool _detected = true;
+  // bool _imageStreamStarted = false;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final auth = FirebaseAuth.instance;
@@ -404,7 +404,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             InkWell(
-                              onTap: _detected ? _captureVideo : () {},
+                              onTap: _captureVideo,
                               child: Container(
                                 margin: EdgeInsets.only(bottom: 20),
                                 width: 75,
