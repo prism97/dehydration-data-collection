@@ -336,6 +336,10 @@ class _EntryInitialState extends State<EntryInitial> {
                                     ),
                                   ),
                                 );
+                              } else {
+                                setState(() {
+                                  _loading = false;
+                                });
                               }
                             },
                           ),
