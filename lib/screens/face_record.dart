@@ -29,7 +29,6 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
   XFile _vidFile;
   final _progressStreamController = StreamController<double>.broadcast();
   double _progress = 0.0;
-  bool _recordingStarted = false;
   bool _hasCaptured = false;
   bool _playingPreview = false;
 

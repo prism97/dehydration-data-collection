@@ -1,5 +1,4 @@
 import 'package:data_collection_app/screens/home.dart';
-import 'package:data_collection_app/widgets/base_button.dart';
 import 'package:flutter/material.dart';
 
 class ThankYou extends StatelessWidget {
