@@ -44,53 +44,68 @@ class _FaceDemoState extends State<FaceDemo> {
       appBar: AppBar(
         title: Text('Data Droplet'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                color: Colors.grey,
-                width: 200,
-                height: 300,
-                child: VideoPlayer(_controller),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Instructions',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Face Video Record',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
                 ),
-              ),
-              SizedBox(height: 5),
-              Text(
-                '• Keep your entire face within the bounding box',
-                style: TextStyle(fontSize: 15),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              TextButton(
-                style: ButtonStyle(
-                  elevation: MaterialStateProperty.all<double>(8),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
+                Text(
+                  'Demo Video',
                 ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => FaceCapture(
-                        entryUid: widget.entryUid,
-                        hydrated: widget.hydrated,
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  color: Colors.grey,
+                  width: 200,
+                  height: 300,
+                  child: VideoPlayer(_controller),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Instructions',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  '• Keep your face within the bounding box\n\n• You can switch between front & back camera using the camera flip button\n\n• Record your bare face for 5 seconds\n\n• A preview will be shown, you can choose to retake the video or upload immediately',
+                  style: TextStyle(fontSize: 15),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                TextButton(
+                  style: ButtonStyle(
+                    elevation: MaterialStateProperty.all<double>(8),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => FaceCapture(
+                          entryUid: widget.entryUid,
+                          hydrated: widget.hydrated,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: Text('Continue'),
-              ),
-            ],
+                    );
+                  },
+                  child: Text('Continue'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

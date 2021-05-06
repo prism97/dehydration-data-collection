@@ -58,51 +58,66 @@ class _MouthDemoState extends State<MouthDemo> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            children: [
-              Container(
-                color: Colors.grey,
-                width: 200,
-                height: 300,
-                child: VideoPlayer(_controller),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Instructions',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              children: [
+                Text(
+                  'Mouth Image Capture',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
                 ),
-              ),
-              SizedBox(height: 5),
-              Text(
-                '• Keep your lips within the bounding box\n• Open your mouth wide\n• Zoom in as much as possible',
-                style: TextStyle(fontSize: 15),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              TextButton(
-                style: ButtonStyle(
-                  elevation: MaterialStateProperty.all<double>(8),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
+                Text(
+                  'Demo Video',
                 ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => MouthCapture(
-                        entryUid: widget.entryUid,
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  color: Colors.grey,
+                  width: 200,
+                  height: 300,
+                  child: VideoPlayer(_controller),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Instructions',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  '• Keep your lips within the bounding box\n\n• Open your mouth wide\n\n• Zoom in as much as possible',
+                  style: TextStyle(fontSize: 15),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                TextButton(
+                  style: ButtonStyle(
+                    elevation: MaterialStateProperty.all<double>(8),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => MouthCapture(
+                          entryUid: widget.entryUid,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: Text('Continue'),
-              ),
-            ],
+                    );
+                  },
+                  child: Text('Continue'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
