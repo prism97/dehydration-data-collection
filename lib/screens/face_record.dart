@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,16 +33,10 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
   bool _hasCaptured = false;
   bool _playingPreview = false;
 
-  // --------------------- NOTE: FaceDetector Disabled ---------------------
-  // List<Face> faces;
-  // bool _detected = true;
-  // bool _imageStreamStarted = false;
-
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
-  // final FaceDetector _faceDetector = FirebaseVision.instance.faceDetector();
 
   @override
   void initState() {
@@ -64,46 +57,6 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
       if (mounted) setState(() {});
     });
   }
-
-  // void _detectFaceFromImageStream(BuildContext context) {
-  //   final double scale = MediaQuery.of(context).devicePixelRatio;
-  //   // bounding box dimensions
-  //   final double left =
-  //       scale * (MediaQuery.of(context).size.width * (0.25 / 2));
-  //   final double top = scale * 50;
-  //   final double right =
-  //       scale * MediaQuery.of(context).size.width * (0.75 + (0.25 / 2));
-  //   final double bottom =
-  //       scale * (50 + MediaQuery.of(context).size.height * 0.55);
-
-  //   ImageRotation rotation =
-  //       rotationIntToImageRotation(_controller.description.sensorOrientation);
-
-  //   _imageStreamStarted = true;
-  //   _controller.startImageStream((image) {
-  //     if (!_detected) {
-  //       detect(image, _faceDetector.processImage, rotation).then((value) {
-  //         faces = value;
-  //         if (faces.length != 1) return;
-  //         print('face detected');
-  //         Face detectedFace = faces[0];
-  //         final box = detectedFace.boundingBox;
-  //         // TODO : check left condition
-  //         if (box.left < left &&
-  //             box.top > top &&
-  //             box.right < right &&
-  //             box.bottom < bottom) {
-  //           print(detectedFace.boundingBox);
-  //           print('left : $left, top : $top, right : $right, bottom : $bottom');
-
-  //           setState(() {
-  //             _detected = true;
-  //           });
-  //         }
-  //       });
-  //     }
-  //   });
-  // }
 
   @override
   void dispose() {
@@ -160,7 +113,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
     try {
       _controller.startVideoRecording();
       while (_progress < 1.0) {
-        await Future.delayed(Duration(milliseconds: 50), () {
+        await Future.delayed(Duration(milliseconds: 25), () {
           _progress += 0.005;
           _progressStreamController.add(_progress);
         });
@@ -215,6 +168,7 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
     if (mounted)
       setState(() {
         _hasCaptured = false;
+        _playingPreview = false;
       });
   }
 
@@ -311,17 +265,6 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // if (_controller.value.isInitialized && !_imageStreamStarted) {
-    //   _detectFaceFromImageStream(context);
-    // }
-
-    // if (_controller.value.isInitialized && _detected && !_recordingStarted) {
-    //   _controller.stopImageStream().then((value) {
-    //     _recordingStarted = true;
-    //     _captureVideo();
-    //   });
-    // }
-
     if (!_controller.value.isInitialized) {
       return Scaffold(
         key: _scaffoldKey,
