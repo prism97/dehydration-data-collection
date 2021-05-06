@@ -255,7 +255,7 @@ class _SignUpState extends State<SignUp> {
                       contentPadding: EdgeInsets.zero,
                       value: _agreed,
                       title: Text(
-                        'I understand that the data I provide will be used for the purpose of this research only.',
+                        'I understand that the data that I provide will be used for the purpose of the research only.',
                       ),
                       onChanged: (val) {
                         setState(() {
