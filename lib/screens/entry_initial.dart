@@ -260,7 +260,7 @@ class _EntryInitialState extends State<EntryInitial> {
                     : _hydrated
                         ? BaseFormField(
                             label:
-                                'How many glasses of fluid did you take in the last 4 hours?',
+                                'How many glasses of fluid did you take in the last 6 hours?',
                             formField: TextFormField(
                               keyboardType: TextInputType.number,
                               validator: (val) => (val == null || val.isEmpty)

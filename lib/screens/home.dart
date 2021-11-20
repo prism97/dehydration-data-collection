@@ -16,9 +16,8 @@ class Home extends StatelessWidget {
   final auth = FirebaseAuth.instance;
 
   final preferredTimes = [
-    'At noon',
-    'Before iftaar',
     'Before going to sleep at night',
+    'Right after waking up in the morning'
   ];
 
   final steps = [
@@ -36,7 +35,7 @@ class Home extends StatelessWidget {
     if (sharedPreferences.containsKey(key)) {
       String timestampString = sharedPreferences.getString(key);
       DateTime lastEntryTime = DateTime.parse(timestampString);
-      if (DateTime.now().difference(lastEntryTime).inHours >= 4) {
+      if (DateTime.now().difference(lastEntryTime).inHours >= 6) {
         return true;
       } else {
         return false;
@@ -112,7 +111,7 @@ class Home extends StatelessWidget {
               children: [
                 _buildPreferredTimesBox(),
                 SizedBox(
-                  height: 8,
+                  height: 16,
                 ),
                 ElevatedButton(
                   style: ButtonStyle(
@@ -198,7 +197,7 @@ class Home extends StatelessWidget {
                                       SizedBox(height: 16),
                                       Expanded(
                                         child: Text(
-                                          'Less than 4 hours have passed since your last entry. Please wait a while before providing the next entry!',
+                                          'Less than 6 hours have passed since your last entry. Please wait a while before providing the next entry!',
                                           style: TextStyle(
                                             fontSize: 18,
                                           ),
@@ -244,7 +243,7 @@ class Home extends StatelessWidget {
                           height: 5,
                         ),
                         Text(
-                          'Please provide at least one entry in hydrated state and at least two entries in dehydrated state.',
+                          'Please provide at least one entry in hydrated state and one entry in dehydrated state.',
                           textAlign: TextAlign.justify,
                           style: TextStyle(
                             fontSize: 14,
@@ -269,6 +268,7 @@ class Home extends StatelessWidget {
 
   Container _buildPreferredTimesBox() {
     return Container(
+      width: Size.infinite.width,
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -282,7 +282,7 @@ class Home extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Preferred times for data entry during Ramadan',
+            'Preferred times for data entry',
             style: TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 16,
