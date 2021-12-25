@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:data_collection_app/screens/thank_you.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -193,13 +194,19 @@ class _FaceCaptureState extends State<FaceCapture> with WidgetsBindingObserver {
 
       await Future.delayed(Duration(milliseconds: 500));
 
+      // Navigator.of(context)
+      //     .push(
+      //   MaterialPageRoute(
+      //     builder: (context) => MouthDemo(
+      //       entryUid: widget.entryUid,
+      //     ),
+      //   ),
+      // )
+
       Navigator.of(context)
-          .push(
-        MaterialPageRoute(
-          builder: (context) => MouthDemo(
-            entryUid: widget.entryUid,
-          ),
-        ),
+          .pushNamedAndRemoveUntil(
+        ThankYou.id,
+        (_) => false,
       )
           .then((_) {
         _progressStreamController.add(-1.0);

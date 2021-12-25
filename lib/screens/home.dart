@@ -23,7 +23,7 @@ class Home extends StatelessWidget {
   final steps = [
     'Provide some basic information about your current condition',
     'Record your face for 5 seconds',
-    'Take a picture of your mouth, keeping it open (optional)',
+    // 'Take a picture of your mouth, keeping it open (optional)',
   ];
 
   // returns true if a new entry can be taken
